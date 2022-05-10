@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "807502086136",
+    "project_id": "talk-tube-final",
+    "storage_bucket": "talk-tube-final.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:807502086136:android:8b24d27f2f343598de200d",
+        "android_client_info": {
+          "package_name": "com.example.talk_tube_o9"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "807502086136-q65v5sh3rll9bkpj3aitvb3vat0t7qdt.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBVMC6xkbYHyA4qYhhNgsoUolf8UMLA6oQ"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "807502086136-q65v5sh3rll9bkpj3aitvb3vat0t7qdt.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
