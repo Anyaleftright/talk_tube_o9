@@ -5,15 +5,18 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 
+import '../widgets/widget.dart';
+
 class HomeScreen extends StatefulWidget {
   @override
   _HomeScreenState createState() => _HomeScreenState();
 }
 
 class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
-  Map<String, dynamic>? userMap;
-  bool isLoading = false;
   final TextEditingController _search = TextEditingController();
+  bool isLoading = false;
+
+  Map<String, dynamic>? userMap;
   final FirebaseAuth _auth = FirebaseAuth.instance;
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
 
@@ -74,15 +77,7 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
     final size = MediaQuery.of(context).size;
 
     return Scaffold(
-      appBar: AppBar(
-        title: const Text("Home Screen"),
-        actions: [
-          IconButton(
-            onPressed: () => logOut(context),
-            icon: const Icon(Icons.logout),
-          ),
-        ],
-      ),
+      appBar: appBarMain(context),
       body: isLoading
           ? Center(
               child: SizedBox(

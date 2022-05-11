@@ -31,7 +31,7 @@ class ChatRoom extends StatelessWidget {
   }
 
   Future uploadImage() async {
-    String fileName = Uuid().v1();
+    String fileName = const Uuid().v1();
     int status = 1;
 
     await _firestore

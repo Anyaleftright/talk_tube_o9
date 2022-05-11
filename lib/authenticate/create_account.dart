@@ -2,6 +2,9 @@ import 'package:talk_tube_o9/authenticate/methods.dart';
 import 'package:flutter/material.dart';
 
 import '../Screens/home_screen.dart';
+import '../config/setting.dart';
+import '../widgets/ui_helper.dart';
+import '../widgets/widget.dart';
 
 class CreateAccount extends StatefulWidget {
   @override
@@ -19,96 +22,99 @@ class _CreateAccountState extends State<CreateAccount> {
     final size = MediaQuery.of(context).size;
 
     return Scaffold(
-      body: isLoading
-          ? Center(
-              child: Container(
-                height: size.height / 20,
-                width: size.height / 20,
-                child: CircularProgressIndicator(),
-              ),
+        body: Center(
+      child: isLoading
+          ? SizedBox(
+              height: size.height / 20,
+              width: size.height / 20,
+              child: const CircularProgressIndicator(),
             )
           : SingleChildScrollView(
-              child: Column(
-                children: [
-                  SizedBox(
-                    height: size.height / 20,
-                  ),
-                  Container(
-                    alignment: Alignment.centerLeft,
-                    width: size.width / 0.5,
-                    child: IconButton(
-                        icon: Icon(Icons.arrow_back_ios), onPressed: () {}),
-                  ),
-                  SizedBox(
-                    height: size.height / 50,
-                  ),
-                  Container(
-                    width: size.width / 1.1,
-                    child: Text(
-                      "Welcome",
-                      style: TextStyle(
-                        fontSize: 34,
-                        fontWeight: FontWeight.bold,
+              child: Container(
+                padding: const EdgeInsets.symmetric(horizontal: 24),
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: [
+                    appBrand(),
+                    const SizedBox(height: 32),
+                    TextField(
+                      controller: _name,
+                      decoration: textFieldInputDecoration('Name'),
+                      style: simpleTextStyle(),
+                    ),
+                    const SizedBox(height: 8),
+                    TextField(
+                      controller: _email,
+                      decoration: textFieldInputDecoration('Email'),
+                      style: simpleTextStyle(),
+                    ),
+                    const SizedBox(height: 8),
+                    TextField(
+                      controller: _password,
+                      obscureText: true,
+                      decoration: textFieldInputDecoration('Password'),
+                      style: simpleTextStyle(),
+                    ),
+                    const SizedBox(height: 32),
+                    Container(
+                      width: double.infinity,
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(20),
+                      ),
+                      child: ElevatedButton(
+                        onPressed: () {
+                          if (_name.text.isNotEmpty &&
+                              _email.text.isNotEmpty &&
+                              _password.text.isNotEmpty) {
+                            setState(() {
+                              isLoading = true;
+                            });
+
+                            createAccount(_name.text, _email.text, _password.text).then((user) {
+                              if (user != null) {
+                                setState(() {
+                                  isLoading = false;
+                                });
+                                Navigator.push(
+                                    context, MaterialPageRoute(builder: (_) => HomeScreen()));
+                                UIHelper.showAlertDialog(context, '', 'Account Created Successful');
+                              } else {
+                                UIHelper.showAlertDialog(context, 'Error', 'Email already used');
+                                setState(() {
+                                  isLoading = false;
+                                });
+                              }
+                            });
+                          } else {
+                            UIHelper.showAlertDialog(context, 'Error', 'Please fill all the fields');
+                          }
+                        },
+                        child: const Text('Sign Up'),
+                        style: ButtonStyle(
+                            backgroundColor:
+                                MaterialStateProperty.all(Setting.themeColor),
+                            padding: MaterialStateProperty.all<EdgeInsets>(
+                                const EdgeInsets.all(12)),
+                            shape: MaterialStateProperty.all<
+                                    RoundedRectangleBorder>(
+                                RoundedRectangleBorder(
+                                    borderRadius:
+                                        BorderRadius.circular(18.0)))),
                       ),
                     ),
-                  ),
-                  Container(
-                    width: size.width / 1.1,
-                    child: Text(
-                      "Create Account to Contiue!",
-                      style: TextStyle(
-                        color: Colors.grey[700],
-                        fontSize: 20,
-                        fontWeight: FontWeight.w500,
+                    const SizedBox(height: 8),
+                    Container(
+                      width: double.infinity,
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(20),
                       ),
                     ),
-                  ),
-                  SizedBox(
-                    height: size.height / 20,
-                  ),
-                  Padding(
-                    padding: const EdgeInsets.symmetric(vertical: 18.0),
-                    child: Container(
-                      width: size.width,
-                      alignment: Alignment.center,
-                      child: field(size, "Name", Icons.account_box, _name),
-                    ),
-                  ),
-                  Container(
-                    width: size.width,
-                    alignment: Alignment.center,
-                    child: field(size, "email", Icons.account_box, _email),
-                  ),
-                  Padding(
-                    padding: const EdgeInsets.symmetric(vertical: 18.0),
-                    child: Container(
-                      width: size.width,
-                      alignment: Alignment.center,
-                      child: field(size, "password", Icons.lock, _password),
-                    ),
-                  ),
-                  SizedBox(
-                    height: size.height / 20,
-                  ),
-                  customButton(size),
-                  Padding(
-                    padding: const EdgeInsets.all(8.0),
-                    child: GestureDetector(
-                      onTap: () => Navigator.pop(context),
-                      child: Text(
-                        "Login",
-                        style: TextStyle(
-                          color: Colors.blue,
-                          fontSize: 16,
-                          fontWeight: FontWeight.w500,
-                        ),
-                      ),
-                    ),
-                  )
-                ],
+                  ],
+                ),
               ),
             ),
-    );
+    ));
   }
 
   Widget customButton(Size size) {
