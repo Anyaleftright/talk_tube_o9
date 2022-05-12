@@ -31,11 +31,14 @@ class _CompleteProfileState extends State<CompleteProfile> {
     XFile? pickedFile =  await ImagePicker().pickImage(source: source);
 
     if(pickedFile != null){
-      cropImage(pickedFile);
+      // cropImage(pickedFile);
+      setState(() {
+        image = File(pickedFile.path);
+      });
     }
   }
 
-  void cropImage(XFile file) async {
+  /*void cropImage(XFile file) async {
     File? croppedImage = await ImageCropper().cropImage(
       sourcePath: file.path,
       aspectRatio: const CropAspectRatio(ratioX: 1, ratioY: 1),
@@ -47,7 +50,7 @@ class _CompleteProfileState extends State<CompleteProfile> {
         image = croppedImage;
       });
     }
-  }
+  }*/
 
   void showImageOptions() {
     showDialog(context: context, builder: (context) {
@@ -94,7 +97,7 @@ class _CompleteProfileState extends State<CompleteProfile> {
   }
 
   void uploadData() async {
-    UploadTask uploadTask = FirebaseStorage.instance.ref("profilepictures")
+    UploadTask uploadTask = FirebaseStorage.instance.ref("profilePictures")
         .child(widget.userModel.uid.toString()).putFile(image!);
 
     TaskSnapshot snapshot = await uploadTask;
@@ -116,8 +119,8 @@ class _CompleteProfileState extends State<CompleteProfile> {
           backgroundColor: Colors.black,
           titleTextStyle: simpleTextStyle(),
           contentTextStyle: simpleTextStyle(),
-          title: const Text('Notice'),
-          content: const Text('Data has been uploaded.'),
+          title: const Text('Successful'),
+          content: const Text('Account has been created.'),
           actions: [
             TextButton(
                 onPressed: () => Navigator.of(context).pushAndRemoveUntil(MaterialPageRoute(builder: (context) => const SignIn()), (route) => false),

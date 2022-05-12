@@ -216,10 +216,11 @@ class _ChatRoomScreenState extends State<ChatRoomScreen> {
         title: Row(
           children: [
             CircleAvatar(
-              backgroundImage:
-                  NetworkImage(widget.targetUser.avatar.toString()),
+              backgroundImage: widget.targetUser.avatar!.toString() == ''
+                  ? const AssetImage('assets/images/default.png')
+                  : NetworkImage(widget.targetUser.avatar!) as ImageProvider,
             ),
-            const SizedBox(width: 6),
+            const SizedBox(width: 12),
             Text(widget.targetUser.name.toString(), style: simpleTextStyle()),
           ],
         ),

@@ -78,8 +78,9 @@ class _HomeScreenState extends State<HomeScreen> {
                                     }
                                   },
                                   leading: CircleAvatar(
-                                    radius: 32,
-                                    backgroundImage: NetworkImage(targetUser.avatar.toString()),
+                                    backgroundImage: targetUser.avatar!.toString() == ''
+                                        ? const AssetImage('assets/images/default.png')
+                                        : NetworkImage(targetUser.avatar!) as ImageProvider,
                                   ),
                                   title: Text(
                                     targetUser.name.toString(),

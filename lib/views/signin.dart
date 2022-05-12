@@ -100,8 +100,8 @@ class _SignInState extends State<SignIn> {
                   decoration: textFieldInputDecoration('Password'),
                   style: simpleTextStyle(),
                 ),
-                const SizedBox(height: 8),
-                Container(
+                const SizedBox(height: 28),
+                /*Container(
                   alignment: Alignment.centerRight,
                   padding:
                       const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
@@ -109,8 +109,7 @@ class _SignInState extends State<SignIn> {
                       onTap: () {},
                       child:
                           Text('Forgot password?', style: simpleTextStyle())),
-                ),
-                const SizedBox(height: 8),
+                ),*/
                 Container(
                   width: double.infinity,
                   decoration: BoxDecoration(
@@ -133,15 +132,19 @@ class _SignInState extends State<SignIn> {
                                         BorderRadius.circular(18.0)))),
                   ),
                 ),
-                const SizedBox(height: 8),
+                const SizedBox(height: 24),
+                Text("Don't have a account?", style: simpleTextStyle()),
                 Container(
                   width: double.infinity,
                   decoration: BoxDecoration(
                     borderRadius: BorderRadius.circular(20),
                   ),
                   child: ElevatedButton(
-                    onPressed: () {},
-                    child: const Text('Sign In with Google',
+                    onPressed: () => Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                            builder: (context) => const SignUp())),
+                    child: const Text('Register',
                         style: TextStyle(color: Colors.black)),
                     style: ButtonStyle(
                         // overlayColor: MaterialStateProperty.all(Colors.grey.withOpacity(0.1)),
@@ -157,26 +160,6 @@ class _SignInState extends State<SignIn> {
                   ),
                 ),
                 const SizedBox(height: 20),
-                Container(
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Text("Don't have a account?\t", style: simpleTextStyle()),
-                      TextButton(
-                        onPressed: () => Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                                builder: (context) => const SignUp())),
-                        child: const Text("Register now",
-                            style: TextStyle(
-                                color: Colors.white,
-                                decoration: TextDecoration.underline)),
-                      ),
-                    ],
-                  ),
-                ),
               ],
             ),
           ),
