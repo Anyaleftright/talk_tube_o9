@@ -2,6 +2,9 @@ import 'package:talk_tube_o9/group_chats/create_group/create_group.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:talk_tube_o9/widgets/widget.dart';
+
+import '../../config/setting.dart';
 
 class AddMembersInGroup extends StatefulWidget {
   const AddMembersInGroup({Key? key}) : super(key: key);
@@ -48,7 +51,7 @@ class _AddMembersInGroupState extends State<AddMembersInGroup> {
 
     await _firestore
         .collection('users')
-        .where("email", isEqualTo: _search.text)
+        .where("email", isGreaterThanOrEqualTo: _search.text)
         .get()
         .then((value) {
       setState(() {
@@ -95,9 +98,7 @@ class _AddMembersInGroupState extends State<AddMembersInGroup> {
     final Size size = MediaQuery.of(context).size;
 
     return Scaffold(
-      appBar: AppBar(
-        title: Text("Add Members"),
-      ),
+      appBar: appBarMain(context),
       body: SingleChildScrollView(
         child: Column(
           mainAxisSize: MainAxisSize.min,
@@ -106,14 +107,16 @@ class _AddMembersInGroupState extends State<AddMembersInGroup> {
               child: ListView.builder(
                 itemCount: membersList.length,
                 shrinkWrap: true,
-                physics: NeverScrollableScrollPhysics(),
+                physics: const NeverScrollableScrollPhysics(),
                 itemBuilder: (context, index) {
                   return ListTile(
                     onTap: () => onRemoveMembers(index),
-                    leading: Icon(Icons.account_circle),
+                    leading: const Icon(Icons.account_circle),
                     title: Text(membersList[index]['name']),
                     subtitle: Text(membersList[index]['email']),
-                    trailing: Icon(Icons.close),
+                    trailing: const Icon(Icons.close),
+                    iconColor: Colors.white,
+                    textColor: Colors.white,
                   );
                 },
               ),
@@ -125,17 +128,13 @@ class _AddMembersInGroupState extends State<AddMembersInGroup> {
               height: size.height / 14,
               width: size.width,
               alignment: Alignment.center,
-              child: Container(
+              child: SizedBox(
                 height: size.height / 14,
                 width: size.width / 1.15,
                 child: TextField(
                   controller: _search,
-                  decoration: InputDecoration(
-                    hintText: "Search",
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(10),
-                    ),
-                  ),
+                  decoration: textFieldInputDecoration('Email address'),
+                  style: simpleTextStyle(),
                 ),
               ),
             ),
@@ -147,27 +146,41 @@ class _AddMembersInGroupState extends State<AddMembersInGroup> {
                     height: size.height / 12,
                     width: size.height / 12,
                     alignment: Alignment.center,
-                    child: CircularProgressIndicator(),
+                    child: const CircularProgressIndicator(),
                   )
-                : ElevatedButton(
-                    onPressed: onSearch,
-                    child: Text("Search"),
+                : Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 24),
+                    width: double.infinity,
+                    child: ElevatedButton(
+                      onPressed: onSearch,
+                      child: const Text('Search'),
+                      style: ElevatedButton.styleFrom(
+                        elevation: 0,
+                        primary: Setting.themeColor,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(18),
+                        ),
+                      ),
+                    ),
                   ),
             userMap != null
                 ? ListTile(
                     onTap: onResultTap,
-                    leading: Icon(Icons.account_box),
+                    leading: const Icon(Icons.account_box),
                     title: Text(userMap!['name']),
                     subtitle: Text(userMap!['email']),
-                    trailing: Icon(Icons.add),
+                    trailing: const Icon(Icons.add),
+                    iconColor: Colors.white,
+                    textColor: Colors.white,
                   )
-                : SizedBox(),
+                : const SizedBox(),
           ],
         ),
       ),
       floatingActionButton: membersList.length >= 2
           ? FloatingActionButton(
-              child: Icon(Icons.forward),
+              backgroundColor: Setting.themeColor,
+              child: const Icon(Icons.forward),
               onPressed: () => Navigator.of(context).push(
                 MaterialPageRoute(
                   builder: (_) => CreateGroup(
@@ -176,7 +189,7 @@ class _AddMembersInGroupState extends State<AddMembersInGroup> {
                 ),
               ),
             )
-          : SizedBox(),
+          : const SizedBox(),
     );
   }
 }

@@ -41,8 +41,8 @@ class MyAppLoggedIn extends StatelessWidget {
         primarySwatch: Colors.blue,
         scaffoldBackgroundColor: const Color(0xff1f1f1f),
       ),
-      // home: HomeScreen(userModel: userModel, firebaseUser: firebaseUser),
-      home: Dashboard(userModel: userModel, firebaseUser: firebaseUser),
+      home: HomeScreen(userModel: userModel, firebaseUser: firebaseUser),
+      // home: Dashboard(userModel: userModel, firebaseUser: firebaseUser),
     );
   }
 }

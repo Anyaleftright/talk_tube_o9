@@ -1,8 +1,11 @@
-import 'package:talk_tube_o9/screens/home_screen.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:uuid/uuid.dart';
+
+import '../../config/setting.dart';
+import '../../views/home_screen.dart';
+import '../../widgets/widget.dart';
 
 class CreateGroup extends StatefulWidget {
   final List<Map<String, dynamic>> membersList;
@@ -48,10 +51,11 @@ class _CreateGroupState extends State<CreateGroup> {
     await _firestore.collection('groups').doc(groupId).collection('chats').add({
       "message": "${_auth.currentUser!.displayName} Created This Group.",
       "type": "notify",
+      "time": FieldValue.serverTimestamp(),
     });
 
     Navigator.of(context).pushAndRemoveUntil(
-        MaterialPageRoute(builder: (_) => HomeScreen()), (route) => false);
+        MaterialPageRoute(builder: (_) => const HomeScreen()), (route) => false);
   }
 
   @override
@@ -59,15 +63,13 @@ class _CreateGroupState extends State<CreateGroup> {
     final Size size = MediaQuery.of(context).size;
 
     return Scaffold(
-      appBar: AppBar(
-        title: Text("Group Name"),
-      ),
+      appBar: appBarMain(context),
       body: isLoading
           ? Container(
               height: size.height,
               width: size.width,
               alignment: Alignment.center,
-              child: CircularProgressIndicator(),
+              child: const CircularProgressIndicator(),
             )
           : Column(
               children: [
@@ -78,26 +80,33 @@ class _CreateGroupState extends State<CreateGroup> {
                   height: size.height / 14,
                   width: size.width,
                   alignment: Alignment.center,
-                  child: Container(
+                  child: SizedBox(
                     height: size.height / 14,
                     width: size.width / 1.15,
                     child: TextField(
                       controller: _groupName,
-                      decoration: InputDecoration(
-                        hintText: "Enter Group Name",
-                        border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(10),
-                        ),
-                      ),
+                      decoration: textFieldInputDecoration('Enter group name'),
+                      style: simpleTextStyle(),
                     ),
                   ),
                 ),
                 SizedBox(
                   height: size.height / 50,
                 ),
-                ElevatedButton(
-                  onPressed: createGroup,
-                  child: Text("Create Group"),
+                Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 24),
+                  width: double.infinity,
+                  child: ElevatedButton(
+                    onPressed: createGroup,
+                    child: const Text('Create'),
+                    style: ElevatedButton.styleFrom(
+                      elevation: 0,
+                      primary: Setting.themeColor,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(18),
+                      ),
+                    ),
+                  ),
                 ),
               ],
             ),

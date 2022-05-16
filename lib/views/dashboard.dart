@@ -51,8 +51,8 @@ class _DashboardState extends State<Dashboard> {
         physics: const NeverScrollableScrollPhysics(),
         children: [
           HomeScreen(userModel: widget.userModel, firebaseUser: widget.firebaseUser),
-          GroupChatHomeScreen(),
-          Container(child: Center(child: Text('Setting'))),
+          const GroupChatHomeScreen(),
+          const Center(child: Text('Setting')),
         ],
       ),
     );

@@ -8,6 +8,7 @@ import 'package:flutter/material.dart';
 
 class GroupInfo extends StatefulWidget {
   final String groupId, groupName;
+
   const GroupInfo({required this.groupId, required this.groupName, Key? key})
       : super(key: key);
 
@@ -134,76 +135,53 @@ class _GroupInfoState extends State<GroupInfo> {
                 height: size.height,
                 width: size.width,
                 alignment: Alignment.center,
-                child: CircularProgressIndicator(),
+                child: const CircularProgressIndicator(),
               )
             : SingleChildScrollView(
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    Align(
+                    const Align(
                       alignment: Alignment.centerLeft,
-                      child: BackButton(),
+                      child: BackButton(color: Colors.white),
                     ),
-                    Container(
+                    SizedBox(
                       height: size.height / 8,
                       width: size.width / 1.1,
                       child: Row(
                         children: [
-                          Container(
-                            height: size.height / 11,
-                            width: size.height / 11,
-                            decoration: BoxDecoration(
-                              shape: BoxShape.circle,
-                              color: Colors.grey,
-                            ),
-                            child: Icon(
-                              Icons.group,
-                              color: Colors.white,
-                              size: size.width / 10,
-                            ),
-                          ),
-                          SizedBox(
-                            width: size.width / 20,
-                          ),
                           Expanded(
-                            child: Container(
-                              child: Text(
-                                widget.groupName,
-                                overflow: TextOverflow.ellipsis,
-                                style: TextStyle(
-                                  fontSize: size.width / 16,
-                                  fontWeight: FontWeight.w500,
-                                ),
+                            child: Text(
+                              widget.groupName,
+                              overflow: TextOverflow.ellipsis,
+                              style: TextStyle(
+                                fontSize: size.width / 12,
+                                fontWeight: FontWeight.w500,
+                                color: Colors.white,
                               ),
                             ),
                           ),
                         ],
                       ),
                     ),
-
-                    //
-
                     SizedBox(
                       height: size.height / 20,
                     ),
-
-                    Container(
+                    SizedBox(
                       width: size.width / 1.1,
                       child: Text(
                         "${membersList.length} Members",
                         style: TextStyle(
                           fontSize: size.width / 20,
                           fontWeight: FontWeight.w500,
+                          color: Colors.white,
                         ),
                       ),
                     ),
-
                     SizedBox(
                       height: size.height / 20,
                     ),
-
                     // Members Name
-
                     checkAdmin()
                         ? ListTile(
                             onTap: () => Navigator.of(context).push(
@@ -215,28 +193,33 @@ class _GroupInfoState extends State<GroupInfo> {
                                 ),
                               ),
                             ),
-                            leading: Icon(
+                            leading: const Icon(
                               Icons.add,
+                              color: Colors.white,
                             ),
                             title: Text(
                               "Add Members",
                               style: TextStyle(
                                 fontSize: size.width / 22,
                                 fontWeight: FontWeight.w500,
+                                color: Colors.white,
                               ),
                             ),
                           )
-                        : SizedBox(),
+                        : const SizedBox(),
 
                     Flexible(
                       child: ListView.builder(
                         itemCount: membersList.length,
                         shrinkWrap: true,
-                        physics: NeverScrollableScrollPhysics(),
+                        physics: const NeverScrollableScrollPhysics(),
                         itemBuilder: (context, index) {
                           return ListTile(
                             onTap: () => showDialogBox(index),
-                            leading: Icon(Icons.account_circle),
+                            leading: const Icon(
+                              Icons.account_circle,
+                              color: Colors.white,
+                            ),
                             title: Text(
                               membersList[index]['name'],
                               style: TextStyle(
@@ -247,6 +230,7 @@ class _GroupInfoState extends State<GroupInfo> {
                             subtitle: Text(membersList[index]['email']),
                             trailing: Text(
                                 membersList[index]['isAdmin'] ? "Admin" : ""),
+                            textColor: Colors.white,
                           );
                         },
                       ),
@@ -254,7 +238,7 @@ class _GroupInfoState extends State<GroupInfo> {
 
                     ListTile(
                       onTap: onLeaveGroup,
-                      leading: Icon(
+                      leading: const Icon(
                         Icons.logout,
                         color: Colors.redAccent,
                       ),

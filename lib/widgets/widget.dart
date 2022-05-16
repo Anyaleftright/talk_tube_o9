@@ -7,6 +7,10 @@ PreferredSize appBarMain(BuildContext context) {
   return PreferredSize(
     preferredSize: const Size.fromHeight(50),
     child: AppBar(
+      leading: IconButton(
+        onPressed: () {},
+        icon: const Icon(Icons.account_circle, size: 24),
+      ),
       elevation: 0,
       backgroundColor: Colors.black,
       automaticallyImplyLeading: false,

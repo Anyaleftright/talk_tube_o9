@@ -500,11 +500,13 @@ class _ChatRoomScreenState extends State<ChatRoomScreen> {
                             uploadImage();
                             uploadVideo();
                           },
-                          icon: Icon(Icons.send,
-                              size: 30,
-                              color: messageController.text.isEmpty
-                                  ? Colors.grey
-                                  : Setting.themeColor),
+                          icon: Icon(
+                            Icons.send,
+                            size: 30,
+                            color: messageController.text.isEmpty
+                                ? Colors.grey
+                                : Setting.themeColor,
+                          ),
                         ),
                       )
                     ],

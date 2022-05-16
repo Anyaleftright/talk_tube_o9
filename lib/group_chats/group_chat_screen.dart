@@ -3,6 +3,9 @@ import 'package:talk_tube_o9/group_chats/group_chat_room.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:talk_tube_o9/widgets/widget.dart';
+
+import '../config/setting.dart';
 
 class GroupChatHomeScreen extends StatefulWidget {
   const GroupChatHomeScreen({Key? key}) : super(key: key);
@@ -45,15 +48,19 @@ class _GroupChatHomeScreenState extends State<GroupChatHomeScreen> {
     final Size size = MediaQuery.of(context).size;
 
     return Scaffold(
-      appBar: AppBar(
-        title: Text("Groups"),
-      ),
+      appBar: appBarMain(context),
       body: isLoading
-          ? Container(
-              height: size.height,
-              width: size.width,
-              alignment: Alignment.center,
-              child: CircularProgressIndicator(),
+          ? AlertDialog(
+              backgroundColor: Colors.transparent,
+              content: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  const CircularProgressIndicator(
+                      valueColor: AlwaysStoppedAnimation(Setting.themeColor)),
+                  const SizedBox(height: 6),
+                  Text('loading', style: simpleTextStyle()),
+                ],
+              ),
             )
           : ListView.builder(
               itemCount: groupList.length,
@@ -67,16 +74,21 @@ class _GroupChatHomeScreenState extends State<GroupChatHomeScreen> {
                       ),
                     ),
                   ),
-                  leading: Icon(Icons.group),
-                  title: Text(groupList[index]['name']),
+                  leading: const Icon(Icons.group),
+                  title: Text(
+                    groupList[index]['name'],
+                  ),
+                  iconColor: Colors.white,
+                  textColor: Colors.white,
                 );
               },
             ),
       floatingActionButton: FloatingActionButton(
-        child: Icon(Icons.create),
+        child: const Icon(Icons.create),
+        backgroundColor: Setting.themeColor,
         onPressed: () => Navigator.of(context).push(
           MaterialPageRoute(
-            builder: (_) => AddMembersInGroup(),
+            builder: (_) => const AddMembersInGroup(),
           ),
         ),
         tooltip: "Create Group",
