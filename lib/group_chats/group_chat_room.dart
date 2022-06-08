@@ -15,6 +15,7 @@ import 'package:talk_tube_o9/widgets/widget.dart';
 import 'package:video_player/video_player.dart';
 
 import '../main.dart';
+import '../views/extend_video.dart';
 
 class GroupChatRoom extends StatefulWidget {
   final String groupChatId, groupName;
@@ -241,8 +242,8 @@ class _GroupChatRoomState extends State<GroupChatRoom> {
                         onPressed: () {
                           selectImage(ImageSource.gallery);
                         },
-                        icon:
-                            const Icon(Icons.photo, size: 32, color: Colors.grey),
+                        icon: const Icon(Icons.photo,
+                            size: 32, color: Colors.grey),
                       ),
                     ),
                     Container(
@@ -376,6 +377,27 @@ class _GroupChatRoomState extends State<GroupChatRoom> {
             height: size.height / 2,
             child: Image.network(
               chatMap['message'],
+            ),
+          ),
+        );
+      } else if (chatMap['type'] == "video") {
+        return Container(
+          width: size.width,
+          alignment: chatMap['sendBy'] == _auth.currentUser!.displayName
+              ? Alignment.centerRight
+              : Alignment.centerLeft,
+          child: Container(
+            constraints: BoxConstraints(
+              maxHeight: size.height * 0.5,
+              maxWidth: size.width * 0.7,
+            ),
+            margin: const EdgeInsets.symmetric(vertical: 6),
+            child: GestureDetector(
+              onTap: () => Navigator.of(context).push(MaterialPageRoute(
+                  builder: (context) =>
+                      ExtendVideo(videoUrl: chatMap['message'].toString()))),
+              child: Image.network(
+                  'https://scontent.fhan3-5.fna.fbcdn.net/v/t39.30808-1/277568074_3103451473306656_4454676768461377826_n.jpg?stp=dst-jpg_p160x160&_nc_cat=110&ccb=1-7&_nc_sid=7206a8&_nc_ohc=XztwfH8fN_4AX9eZGhw&_nc_ht=scontent.fhan3-5.fna&oh=00_AT_YVHsDBfQ5h0mwAlk-3uwdOkCNNyD4Uj1GsZWz7Ev--g&oe=62A54B9D'),
             ),
           ),
         );
