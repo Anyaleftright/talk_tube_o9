@@ -1,7 +1,8 @@
 import 'dart:developer';
 import 'dart:io';
 
-import 'package:emoji_picker/emoji_picker.dart';
+// ignore: import_of_legacy_library_into_null_safe
+import 'package:emoji_picker_2/emoji_picker_2.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:image_cropper/image_cropper.dart';
 import 'package:image_picker/image_picker.dart';
@@ -14,14 +15,11 @@ import 'package:talk_tube_o9/widgets/widget.dart';
 import 'package:video_player/video_player.dart';
 
 import '../main.dart';
-import '../models/chat_room_model.dart';
-import '../models/message_model.dart';
-import '../models/user_model.dart';
 
 class GroupChatRoom extends StatefulWidget {
   final String groupChatId, groupName;
 
-  GroupChatRoom({
+  const GroupChatRoom({
     required this.groupName,
     required this.groupChatId,
     Key? key,
@@ -204,113 +202,110 @@ class _GroupChatRoomState extends State<GroupChatRoom> {
       ),
       body: WillPopScope(
         child: SafeArea(
-          child: Container(
-            // padding: const EdgeInsets.symmetric(horizontal: 12),
-            child: Column(
-              children: [
-                Expanded(
-                  child: StreamBuilder<QuerySnapshot>(
-                    stream: _firestore
-                        .collection('groups')
-                        .doc(widget.groupChatId)
-                        .collection('chats')
-                        .orderBy('time')
-                        .snapshots(),
-                    builder: (context, snapshot) {
-                      if (snapshot.hasData) {
-                        return ListView.builder(
-                          itemCount: snapshot.data!.docs.length,
-                          itemBuilder: (context, index) {
-                            Map<String, dynamic> chatMap =
-                                snapshot.data!.docs[index].data()
-                                    as Map<String, dynamic>;
+          child: Column(
+            children: [
+              Expanded(
+                child: StreamBuilder<QuerySnapshot>(
+                  stream: _firestore
+                      .collection('groups')
+                      .doc(widget.groupChatId)
+                      .collection('chats')
+                      .orderBy('time')
+                      .snapshots(),
+                  builder: (context, snapshot) {
+                    if (snapshot.hasData) {
+                      return ListView.builder(
+                        itemCount: snapshot.data!.docs.length,
+                        itemBuilder: (context, index) {
+                          Map<String, dynamic> chatMap =
+                              snapshot.data!.docs[index].data()
+                                  as Map<String, dynamic>;
 
-                            return messageTile(size, chatMap);
-                          },
-                        );
-                      } else {
-                        return Container();
-                      }
-                    },
-                  ),
-                ),
-                Container(
-                  height: queryData.size.height * 0.1,
-                  padding: const EdgeInsets.symmetric(vertical: 8),
-                  child: Row(
-                    children: [
-                      Container(
-                        margin: const EdgeInsets.symmetric(horizontal: 4),
-                        child: IconButton(
-                          onPressed: () {
-                            selectImage(ImageSource.gallery);
-                          },
-                          icon:
-                              const Icon(Icons.photo, size: 32, color: Colors.grey),
-                        ),
-                      ),
-                      Container(
-                        margin: const EdgeInsets.symmetric(horizontal: 4),
-                        child: IconButton(
-                          onPressed: () {
-                            selectVideo(ImageSource.gallery);
-                          },
-                          icon: const Icon(Icons.video_library,
-                              size: 32, color: Colors.grey),
-                        ),
-                      ),
-                      Flexible(
-                        child: TextField(
-                          focusNode: _keyboard,
-                          controller: messageController,
-                          style: simpleTextStyle(),
-                          maxLines: null,
-                          decoration: textFieldMessage(
-                            () {
-                              setState(() {
-                                /// when keyboard is opened, click emoji btn can dispose the keyboard
-                                isShowEmoji = !isShowEmoji;
-                                _keyboard.unfocus();
-                                _keyboard.canRequestFocus = false;
-                              });
-                            },
-                          ),
-                        ),
-                      ),
-                      Container(
-                        margin: const EdgeInsets.only(left: 8),
-                        child: IconButton(
-                          onPressed: () {
-                            onSendMessage();
-                            uploadImage();
-                            uploadVideo();
-                          },
-                          icon: Icon(
-                            Icons.send,
-                            size: 30,
-                            color: messageController.text.isEmpty
-                                ? Colors.grey
-                                : Setting.themeColor,
-                          ),
-                        ),
-                      )
-                    ],
-                  ),
-                ),
-                isShowEmoji == true
-                    ? EmojiPicker(
-                        rows: 3,
-                        columns: 7,
-                        bgColor: Colors.black,
-                        indicatorColor: Setting.themeColor,
-                        onEmojiSelected: (emoji, category) {
-                          messageController.text =
-                              messageController.text + emoji.emoji;
+                          return messageTile(size, chatMap);
                         },
-                      )
-                    : const SizedBox(),
-              ],
-            ),
+                      );
+                    } else {
+                      return Container();
+                    }
+                  },
+                ),
+              ),
+              Container(
+                height: queryData.size.height * 0.1,
+                padding: const EdgeInsets.symmetric(vertical: 8),
+                child: Row(
+                  children: [
+                    Container(
+                      margin: const EdgeInsets.symmetric(horizontal: 4),
+                      child: IconButton(
+                        onPressed: () {
+                          selectImage(ImageSource.gallery);
+                        },
+                        icon:
+                            const Icon(Icons.photo, size: 32, color: Colors.grey),
+                      ),
+                    ),
+                    Container(
+                      margin: const EdgeInsets.symmetric(horizontal: 4),
+                      child: IconButton(
+                        onPressed: () {
+                          selectVideo(ImageSource.gallery);
+                        },
+                        icon: const Icon(Icons.video_library,
+                            size: 32, color: Colors.grey),
+                      ),
+                    ),
+                    Flexible(
+                      child: TextField(
+                        focusNode: _keyboard,
+                        controller: messageController,
+                        style: simpleTextStyle(),
+                        maxLines: null,
+                        decoration: textFieldMessage(
+                          () {
+                            setState(() {
+                              /// when keyboard is opened, click emoji btn can dispose the keyboard
+                              isShowEmoji = !isShowEmoji;
+                              _keyboard.unfocus();
+                              _keyboard.canRequestFocus = false;
+                            });
+                          },
+                        ),
+                      ),
+                    ),
+                    Container(
+                      margin: const EdgeInsets.only(left: 8),
+                      child: IconButton(
+                        onPressed: () {
+                          onSendMessage();
+                          uploadImage();
+                          uploadVideo();
+                        },
+                        icon: Icon(
+                          Icons.send,
+                          size: 30,
+                          color: messageController.text.isEmpty
+                              ? Colors.grey
+                              : Setting.themeColor,
+                        ),
+                      ),
+                    )
+                  ],
+                ),
+              ),
+              isShowEmoji == true
+                  ? EmojiPicker2(
+                      rows: 3,
+                      columns: 7,
+                      bgColor: Colors.black,
+                      indicatorColor: Setting.themeColor,
+                      onEmojiSelected: (emoji, category) {
+                        messageController.text =
+                            messageController.text + emoji.emoji;
+                      },
+                    )
+                  : const SizedBox(),
+            ],
           ),
         ),
         onWillPop: () {

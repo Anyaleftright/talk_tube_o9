@@ -1,9 +1,10 @@
 import 'dart:developer';
 import 'dart:io';
 
-// import 'package:better_player/better_player.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:emoji_picker/emoji_picker.dart';
+
+// ignore: import_of_legacy_library_into_null_safe
+import 'package:emoji_picker_2/emoji_picker_2.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:talk_tube_o9/config/setting.dart';
 import 'package:talk_tube_o9/main.dart';
@@ -16,6 +17,8 @@ import 'package:flutter/material.dart';
 import 'package:image_cropper/image_cropper.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:video_player/video_player.dart';
+
+import 'extend_video.dart';
 
 class ChatRoomScreen extends StatefulWidget {
   final UserModel userModel;
@@ -259,19 +262,16 @@ class _ChatRoomScreenState extends State<ChatRoomScreen> {
                                 if (current.type.toString() == 'image')
                                   Container(
                                       constraints: BoxConstraints(
-                                        maxHeight:
-                                            queryData.size.height * 0.5,
+                                        maxHeight: queryData.size.height * 0.5,
                                         maxWidth: queryData.size.width * 0.7,
                                       ),
                                       margin: const EdgeInsets.symmetric(
                                           vertical: 6),
                                       child: GestureDetector(
-                                        onTap: () =>
-                                            Navigator.of(context).push(
+                                        onTap: () => Navigator.of(context).push(
                                           MaterialPageRoute(
                                             builder: (context) => ExtendImage(
-                                              imageUrl:
-                                                  current.text.toString(),
+                                              imageUrl: current.text.toString(),
                                             ),
                                           ),
                                         ),
@@ -324,46 +324,31 @@ class _ChatRoomScreenState extends State<ChatRoomScreen> {
                                       ))
                                 else if (current.type.toString() == 'video')
                                   Container(
-                                      /*constraints: BoxConstraints(
-                                        maxHeight: queryData.size.height * 0.2,
-                                        maxWidth: queryData.size.width * 0.7,
-                                      ),
-                                      margin: const EdgeInsets.symmetric(vertical: 6),
-                                      child: GestureDetector(
-                                        */ /*onTap: () => Navigator.of(context).push(
-                                          MaterialPageRoute(
-                                            builder: (context) => ExtendImage(
-                                              imageUrl: current.text.toString(),
-                                            ),
-                                          ),
-                                        ),*/ /*
-                                        onTap: () {},
-                                        child: ClipRRect(
-                                          borderRadius: BorderRadius.circular(24),
-                                          child: BetterPlayer.network(
-                                            current.text.toString(),
-                                            betterPlayerConfiguration: const BetterPlayerConfiguration(
-                                              aspectRatio: 16/9,
-                                            ),
-                                          )
-                                        ),
-                                      )*/
-                                      )
+                                    constraints: BoxConstraints(
+                                      maxHeight: queryData.size.height * 0.5,
+                                      maxWidth: queryData.size.width * 0.7,
+                                    ),
+                                    margin: const EdgeInsets.symmetric(
+                                        vertical: 6),
+                                    child: GestureDetector(
+                                      onTap: () => Navigator.of(context).push(MaterialPageRoute(builder: (context) => ExtendVideo(videoUrl: current.text.toString()))),
+                                      child: Image.network('https://scontent.fhan3-5.fna.fbcdn.net/v/t39.30808-1/277568074_3103451473306656_4454676768461377826_n.jpg?stp=dst-jpg_p160x160&_nc_cat=110&ccb=1-7&_nc_sid=7206a8&_nc_ohc=XztwfH8fN_4AX9eZGhw&_nc_ht=scontent.fhan3-5.fna&oh=00_AT_YVHsDBfQ5h0mwAlk-3uwdOkCNNyD4Uj1GsZWz7Ev--g&oe=62A54B9D'),
+                                    ),
+                                  )
                                 else
                                   Container(
                                     constraints: BoxConstraints(
-                                        maxWidth:
-                                            queryData.size.width * 0.75),
-                                    margin: const EdgeInsets.symmetric(
-                                        vertical: 6),
+                                        maxWidth: queryData.size.width * 0.75),
+                                    margin:
+                                        const EdgeInsets.symmetric(vertical: 6),
                                     padding: const EdgeInsets.symmetric(
                                         vertical: 10, horizontal: 15),
                                     decoration: BoxDecoration(
                                       borderRadius: BorderRadius.circular(30),
-                                      color: current.sender ==
-                                              widget.userModel.uid
-                                          ? Setting.themeColor
-                                          : Colors.grey.withOpacity(0.5),
+                                      color:
+                                          current.sender == widget.userModel.uid
+                                              ? Setting.themeColor
+                                              : Colors.grey.withOpacity(0.5),
                                     ),
                                     child: Text(current.text.toString(),
                                         style: simpleTextStyle()),
@@ -440,10 +425,11 @@ class _ChatRoomScreenState extends State<ChatRoomScreen> {
                 children: [
                   if (video != null)
                     _videoPlayerController!.value.isInitialized
-                        ? AspectRatio(
-                            aspectRatio:
-                                _videoPlayerController!.value.aspectRatio,
-                            child: VideoPlayer(_videoPlayerController!))
+                        ? SizedBox(
+                            width: 300,
+                            height: 300,
+                            child: VideoPlayer(_videoPlayerController!),
+                          )
                         : Container(),
                 ],
               ),
@@ -466,7 +452,7 @@ class _ChatRoomScreenState extends State<ChatRoomScreen> {
                       margin: const EdgeInsets.symmetric(horizontal: 4),
                       child: IconButton(
                         onPressed: () {
-                          selectVideo(ImageSource.gallery);
+                          selectVideo(ImageSource.camera);
                         },
                         icon: const Icon(Icons.video_library,
                             size: 32, color: Colors.grey),
@@ -511,7 +497,7 @@ class _ChatRoomScreenState extends State<ChatRoomScreen> {
                 ),
               ),
               isShowEmoji == true
-                  ? EmojiPicker(
+                  ? EmojiPicker2(
                       rows: 3,
                       columns: 7,
                       bgColor: Colors.black,
