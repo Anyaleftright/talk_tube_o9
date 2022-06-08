@@ -332,7 +332,7 @@ class _ChatRoomScreenState extends State<ChatRoomScreen> {
                                         vertical: 6),
                                     child: GestureDetector(
                                       onTap: () => Navigator.of(context).push(MaterialPageRoute(builder: (context) => ExtendVideo(videoUrl: current.text.toString()))),
-                                      child: Image.network('https://scontent.fhan3-5.fna.fbcdn.net/v/t39.30808-1/277568074_3103451473306656_4454676768461377826_n.jpg?stp=dst-jpg_p160x160&_nc_cat=110&ccb=1-7&_nc_sid=7206a8&_nc_ohc=XztwfH8fN_4AX9eZGhw&_nc_ht=scontent.fhan3-5.fna&oh=00_AT_YVHsDBfQ5h0mwAlk-3uwdOkCNNyD4Uj1GsZWz7Ev--g&oe=62A54B9D'),
+                                      child: Image.network('https://d33v4339jhl8k0.cloudfront.net/docs/assets/591c8a010428634b4a33375c/images/5ab4866b2c7d3a56d8873f4c/file-MrylO8jADD.png'),
                                     ),
                                   )
                                 else
