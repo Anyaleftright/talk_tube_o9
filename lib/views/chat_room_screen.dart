@@ -23,13 +23,13 @@ class ChatRoomScreen extends StatefulWidget {
   final UserModel targetUser;
   final ChatRoomModel chatRoom;
 
-  const ChatRoomScreen(
-      {Key? key,
-      required this.userModel,
-      required this.firebaseUser,
-      required this.targetUser,
-      required this.chatRoom})
-      : super(key: key);
+  const ChatRoomScreen({
+    Key? key,
+    required this.userModel,
+    required this.firebaseUser,
+    required this.targetUser,
+    required this.chatRoom,
+  }) : super(key: key);
 
   @override
   _ChatRoomScreenState createState() => _ChatRoomScreenState();
@@ -227,305 +227,302 @@ class _ChatRoomScreenState extends State<ChatRoomScreen> {
       ),
       body: WillPopScope(
         child: SafeArea(
-          child: Container(
-            padding: const EdgeInsets.symmetric(horizontal: 12),
-            child: Column(
-              children: [
-                Expanded(
-                  child: StreamBuilder(
-                    stream: FirebaseFirestore.instance
-                        .collection('chatRooms')
-                        .doc(widget.chatRoom.roomId)
-                        .collection('messages')
-                        .orderBy('createdOn', descending: true)
-                        .snapshots(),
-                    builder: (context, snapshot) {
-                      if (snapshot.connectionState == ConnectionState.active) {
-                        if (snapshot.hasData) {
-                          QuerySnapshot dataSnapshot =
-                              snapshot.data as QuerySnapshot;
-                          return ListView.builder(
-                            physics: const BouncingScrollPhysics(),
-                            reverse: true,
-                            itemCount: dataSnapshot.docs.length,
-                            itemBuilder: (context, index) {
-                              MessageModel current = MessageModel.fromMap(
-                                  dataSnapshot.docs[index].data()
-                                      as Map<String, dynamic>);
-                              return Row(
-                                mainAxisAlignment:
-                                    current.sender == widget.userModel.uid
-                                        ? MainAxisAlignment.end
-                                        : MainAxisAlignment.start,
-                                children: [
-                                  if (current.type.toString() == 'image')
-                                    Container(
-                                        constraints: BoxConstraints(
-                                          maxHeight:
-                                              queryData.size.height * 0.5,
-                                          maxWidth: queryData.size.width * 0.7,
-                                        ),
-                                        margin: const EdgeInsets.symmetric(
-                                            vertical: 6),
-                                        child: GestureDetector(
-                                          onTap: () =>
-                                              Navigator.of(context).push(
-                                            MaterialPageRoute(
-                                              builder: (context) => ExtendImage(
-                                                imageUrl:
-                                                    current.text.toString(),
-                                              ),
-                                            ),
-                                          ),
-                                          onLongPress: () {
-                                            // print('on long press');
-                                            showModalBottomSheet(
-                                                context: context,
-                                                builder: (_) {
-                                                  return Container(
-                                                    padding: const EdgeInsets
-                                                            .symmetric(
-                                                        horizontal: 40,
-                                                        vertical: 30),
-                                                    child: Row(
-                                                      mainAxisAlignment:
-                                                          MainAxisAlignment
-                                                              .spaceBetween,
-                                                      crossAxisAlignment:
-                                                          CrossAxisAlignment
-                                                              .center,
-                                                      children: [
-                                                        DetailsMessage(
-                                                            icon: const Icon(
-                                                                Icons.save),
-                                                            title: 'Save',
-                                                            onPress: () {}),
-                                                        DetailsMessage(
-                                                            icon: const Icon(
-                                                                Icons.info),
-                                                            title: 'Info',
-                                                            onPress: () {}),
-                                                        DetailsMessage(
-                                                            icon: const Icon(
-                                                                Icons.delete),
-                                                            title: 'Delete',
-                                                            onPress: () {}),
-                                                      ],
-                                                    ),
-                                                  );
-                                                });
-                                          },
-                                          child: ClipRRect(
-                                            borderRadius:
-                                                BorderRadius.circular(24),
-                                            child: current.text!.isNotEmpty
-                                                ? Image.network(
-                                                    current.text.toString())
-                                                : const isLoading(),
-                                          ),
-                                        ))
-                                  else if (current.type.toString() == 'video')
-                                    Container(
-                                        /*constraints: BoxConstraints(
-                                          maxHeight: queryData.size.height * 0.2,
-                                          maxWidth: queryData.size.width * 0.7,
-                                        ),
-                                        margin: const EdgeInsets.symmetric(vertical: 6),
-                                        child: GestureDetector(
-                                          */ /*onTap: () => Navigator.of(context).push(
-                                            MaterialPageRoute(
-                                              builder: (context) => ExtendImage(
-                                                imageUrl: current.text.toString(),
-                                              ),
-                                            ),
-                                          ),*/ /*
-                                          onTap: () {},
-                                          child: ClipRRect(
-                                            borderRadius: BorderRadius.circular(24),
-                                            child: BetterPlayer.network(
-                                              current.text.toString(),
-                                              betterPlayerConfiguration: const BetterPlayerConfiguration(
-                                                aspectRatio: 16/9,
-                                              ),
-                                            )
-                                          ),
-                                        )*/
-                                        )
-                                  else
-                                    Container(
+          child: Column(
+            children: [
+              Expanded(
+                child: StreamBuilder(
+                  stream: FirebaseFirestore.instance
+                      .collection('chatRooms')
+                      .doc(widget.chatRoom.roomId)
+                      .collection('messages')
+                      .orderBy('createdOn', descending: true)
+                      .snapshots(),
+                  builder: (context, snapshot) {
+                    if (snapshot.connectionState == ConnectionState.active) {
+                      if (snapshot.hasData) {
+                        QuerySnapshot dataSnapshot =
+                            snapshot.data as QuerySnapshot;
+                        return ListView.builder(
+                          physics: const BouncingScrollPhysics(),
+                          reverse: true,
+                          itemCount: dataSnapshot.docs.length,
+                          itemBuilder: (context, index) {
+                            MessageModel current = MessageModel.fromMap(
+                                dataSnapshot.docs[index].data()
+                                    as Map<String, dynamic>);
+                            return Row(
+                              mainAxisAlignment:
+                                  current.sender == widget.userModel.uid
+                                      ? MainAxisAlignment.end
+                                      : MainAxisAlignment.start,
+                              children: [
+                                if (current.type.toString() == 'image')
+                                  Container(
                                       constraints: BoxConstraints(
-                                          maxWidth:
-                                              queryData.size.width * 0.75),
+                                        maxHeight:
+                                            queryData.size.height * 0.5,
+                                        maxWidth: queryData.size.width * 0.7,
+                                      ),
                                       margin: const EdgeInsets.symmetric(
                                           vertical: 6),
-                                      padding: const EdgeInsets.symmetric(
-                                          vertical: 10, horizontal: 15),
-                                      decoration: BoxDecoration(
-                                        borderRadius: BorderRadius.circular(30),
-                                        color: current.sender ==
-                                                widget.userModel.uid
-                                            ? Setting.themeColor
-                                            : Colors.grey.withOpacity(0.5),
+                                      child: GestureDetector(
+                                        onTap: () =>
+                                            Navigator.of(context).push(
+                                          MaterialPageRoute(
+                                            builder: (context) => ExtendImage(
+                                              imageUrl:
+                                                  current.text.toString(),
+                                            ),
+                                          ),
+                                        ),
+                                        onLongPress: () {
+                                          // print('on long press');
+                                          showModalBottomSheet(
+                                              context: context,
+                                              builder: (_) {
+                                                return Container(
+                                                  padding: const EdgeInsets
+                                                          .symmetric(
+                                                      horizontal: 40,
+                                                      vertical: 30),
+                                                  child: Row(
+                                                    mainAxisAlignment:
+                                                        MainAxisAlignment
+                                                            .spaceBetween,
+                                                    crossAxisAlignment:
+                                                        CrossAxisAlignment
+                                                            .center,
+                                                    children: [
+                                                      DetailsMessage(
+                                                          icon: const Icon(
+                                                              Icons.save),
+                                                          title: 'Save',
+                                                          onPress: () {}),
+                                                      DetailsMessage(
+                                                          icon: const Icon(
+                                                              Icons.info),
+                                                          title: 'Info',
+                                                          onPress: () {}),
+                                                      DetailsMessage(
+                                                          icon: const Icon(
+                                                              Icons.delete),
+                                                          title: 'Delete',
+                                                          onPress: () {}),
+                                                    ],
+                                                  ),
+                                                );
+                                              });
+                                        },
+                                        child: ClipRRect(
+                                          borderRadius:
+                                              BorderRadius.circular(24),
+                                          child: current.text!.isNotEmpty
+                                              ? Image.network(
+                                                  current.text.toString())
+                                              : const isLoading(),
+                                        ),
+                                      ))
+                                else if (current.type.toString() == 'video')
+                                  Container(
+                                      /*constraints: BoxConstraints(
+                                        maxHeight: queryData.size.height * 0.2,
+                                        maxWidth: queryData.size.width * 0.7,
                                       ),
-                                      child: Text(current.text.toString(),
-                                          style: simpleTextStyle()),
+                                      margin: const EdgeInsets.symmetric(vertical: 6),
+                                      child: GestureDetector(
+                                        */ /*onTap: () => Navigator.of(context).push(
+                                          MaterialPageRoute(
+                                            builder: (context) => ExtendImage(
+                                              imageUrl: current.text.toString(),
+                                            ),
+                                          ),
+                                        ),*/ /*
+                                        onTap: () {},
+                                        child: ClipRRect(
+                                          borderRadius: BorderRadius.circular(24),
+                                          child: BetterPlayer.network(
+                                            current.text.toString(),
+                                            betterPlayerConfiguration: const BetterPlayerConfiguration(
+                                              aspectRatio: 16/9,
+                                            ),
+                                          )
+                                        ),
+                                      )*/
+                                      )
+                                else
+                                  Container(
+                                    constraints: BoxConstraints(
+                                        maxWidth:
+                                            queryData.size.width * 0.75),
+                                    margin: const EdgeInsets.symmetric(
+                                        vertical: 6),
+                                    padding: const EdgeInsets.symmetric(
+                                        vertical: 10, horizontal: 15),
+                                    decoration: BoxDecoration(
+                                      borderRadius: BorderRadius.circular(30),
+                                      color: current.sender ==
+                                              widget.userModel.uid
+                                          ? Setting.themeColor
+                                          : Colors.grey.withOpacity(0.5),
                                     ),
-                                ],
-                              );
-                            },
-                          );
-                        } else if (snapshot.hasError) {
-                          return const Center(child: Text('Lost connection.'));
-                        } else {
-                          return const Center(child: Text("Let's Talking"));
-                        }
-                      } else {
-                        return const isLoading();
-                      }
-                    },
-                  ),
-                ),
-                Container(
-                  child: image == null
-                      ? null
-                      : Row(
-                          mainAxisAlignment: MainAxisAlignment.start,
-                          children: [
-                            Stack(
-                              children: [
-                                GestureDetector(
-                                  onTap: () {
-                                    selectImage(ImageSource.gallery);
-                                  },
-                                  child: Container(
-                                    padding: const EdgeInsets.only(
-                                        bottom: 12, left: 12),
-                                    child: ClipRRect(
-                                      borderRadius: BorderRadius.circular(24),
-                                      child: Image.file(
-                                        image!,
-                                        width: 150,
-                                        height: 150,
-                                        fit: BoxFit.cover,
-                                      ),
-                                    ),
+                                    child: Text(current.text.toString(),
+                                        style: simpleTextStyle()),
                                   ),
-                                ),
-                                Positioned(
-                                  right: 0,
-                                  top: 0,
-                                  child: IconButton(
-                                    onPressed: () {
-                                      setState(() {
-                                        image = null;
-                                      });
-                                    },
-                                    icon: Container(
-                                      decoration: BoxDecoration(
-                                        color: Colors.grey,
-                                        borderRadius: BorderRadius.circular(90),
-                                      ),
-                                      child: const Icon(
-                                        Icons.close_rounded,
-                                        size: 24,
-                                        color: Colors.black,
-                                      ),
-                                    ),
-                                  ),
-                                ),
                               ],
-                            ),
-                          ],
-                        ),
+                            );
+                          },
+                        );
+                      } else if (snapshot.hasError) {
+                        return const Center(child: Text('Lost connection.'));
+                      } else {
+                        return const Center(child: Text("Let's Talking"));
+                      }
+                    } else {
+                      return const isLoading();
+                    }
+                  },
                 ),
-                Column(
+              ),
+              Container(
+                child: image == null
+                    ? null
+                    : Row(
+                        mainAxisAlignment: MainAxisAlignment.start,
+                        children: [
+                          Stack(
+                            children: [
+                              GestureDetector(
+                                onTap: () {
+                                  selectImage(ImageSource.gallery);
+                                },
+                                child: Container(
+                                  padding: const EdgeInsets.only(
+                                      bottom: 12, left: 12),
+                                  child: ClipRRect(
+                                    borderRadius: BorderRadius.circular(24),
+                                    child: Image.file(
+                                      image!,
+                                      width: 150,
+                                      height: 150,
+                                      fit: BoxFit.cover,
+                                    ),
+                                  ),
+                                ),
+                              ),
+                              Positioned(
+                                right: 0,
+                                top: 0,
+                                child: IconButton(
+                                  onPressed: () {
+                                    setState(() {
+                                      image = null;
+                                    });
+                                  },
+                                  icon: Container(
+                                    decoration: BoxDecoration(
+                                      color: Colors.grey,
+                                      borderRadius: BorderRadius.circular(90),
+                                    ),
+                                    child: const Icon(
+                                      Icons.close_rounded,
+                                      size: 24,
+                                      color: Colors.black,
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ],
+                      ),
+              ),
+              Column(
+                children: [
+                  if (video != null)
+                    _videoPlayerController!.value.isInitialized
+                        ? AspectRatio(
+                            aspectRatio:
+                                _videoPlayerController!.value.aspectRatio,
+                            child: VideoPlayer(_videoPlayerController!))
+                        : Container(),
+                ],
+              ),
+              Container(
+                height: queryData.size.height * 0.1,
+                padding: const EdgeInsets.symmetric(vertical: 8),
+                child: Row(
                   children: [
-                    if (video != null)
-                      _videoPlayerController!.value.isInitialized
-                          ? AspectRatio(
-                              aspectRatio:
-                                  _videoPlayerController!.value.aspectRatio,
-                              child: VideoPlayer(_videoPlayerController!))
-                          : Container(),
+                    Container(
+                      margin: const EdgeInsets.symmetric(horizontal: 4),
+                      child: IconButton(
+                        onPressed: () {
+                          selectImage(ImageSource.gallery);
+                        },
+                        icon: const Icon(Icons.photo,
+                            size: 32, color: Colors.grey),
+                      ),
+                    ),
+                    Container(
+                      margin: const EdgeInsets.symmetric(horizontal: 4),
+                      child: IconButton(
+                        onPressed: () {
+                          selectVideo(ImageSource.gallery);
+                        },
+                        icon: const Icon(Icons.video_library,
+                            size: 32, color: Colors.grey),
+                      ),
+                    ),
+                    Flexible(
+                      child: TextField(
+                        focusNode: _keyboard,
+                        controller: messageController,
+                        style: simpleTextStyle(),
+                        maxLines: null,
+                        decoration: textFieldMessage(
+                          () {
+                            setState(() {
+                              /// when keyboard is opened, click emoji btn can dispose the keyboard
+                              isShowEmoji = !isShowEmoji;
+                              _keyboard.unfocus();
+                              _keyboard.canRequestFocus = false;
+                            });
+                          },
+                        ),
+                      ),
+                    ),
+                    Container(
+                      margin: const EdgeInsets.only(left: 8),
+                      child: IconButton(
+                        onPressed: () {
+                          sendMessage();
+                          uploadImage();
+                          uploadVideo();
+                        },
+                        icon: Icon(
+                          Icons.send,
+                          size: 30,
+                          color: messageController.text.isEmpty
+                              ? Colors.grey
+                              : Setting.themeColor,
+                        ),
+                      ),
+                    )
                   ],
                 ),
-                Container(
-                  height: queryData.size.height * 0.1,
-                  padding: const EdgeInsets.symmetric(vertical: 8),
-                  child: Row(
-                    children: [
-                      Container(
-                        margin: const EdgeInsets.symmetric(horizontal: 4),
-                        child: IconButton(
-                          onPressed: () {
-                            selectImage(ImageSource.gallery);
-                          },
-                          icon: const Icon(Icons.photo,
-                              size: 32, color: Colors.grey),
-                        ),
-                      ),
-                      Container(
-                        margin: const EdgeInsets.symmetric(horizontal: 4),
-                        child: IconButton(
-                          onPressed: () {
-                            selectVideo(ImageSource.gallery);
-                          },
-                          icon: const Icon(Icons.video_library,
-                              size: 32, color: Colors.grey),
-                        ),
-                      ),
-                      Flexible(
-                        child: TextField(
-                          focusNode: _keyboard,
-                          controller: messageController,
-                          style: simpleTextStyle(),
-                          maxLines: null,
-                          decoration: textFieldMessage(
-                            () {
-                              setState(() {
-                                /// when keyboard is opened, click emoji btn can dispose the keyboard
-                                isShowEmoji = !isShowEmoji;
-                                _keyboard.unfocus();
-                                _keyboard.canRequestFocus = false;
-                              });
-                            },
-                          ),
-                        ),
-                      ),
-                      Container(
-                        margin: const EdgeInsets.only(left: 8),
-                        child: IconButton(
-                          onPressed: () {
-                            sendMessage();
-                            uploadImage();
-                            uploadVideo();
-                          },
-                          icon: Icon(
-                            Icons.send,
-                            size: 30,
-                            color: messageController.text.isEmpty
-                                ? Colors.grey
-                                : Setting.themeColor,
-                          ),
-                        ),
-                      )
-                    ],
-                  ),
-                ),
-                isShowEmoji == true
-                    ? EmojiPicker(
-                        rows: 3,
-                        columns: 7,
-                        bgColor: Colors.black,
-                        indicatorColor: Setting.themeColor,
-                        onEmojiSelected: (emoji, category) {
-                          messageController.text =
-                              messageController.text + emoji.emoji;
-                        },
-                      )
-                    : Container(height: 1),
-              ],
-            ),
+              ),
+              isShowEmoji == true
+                  ? EmojiPicker(
+                      rows: 3,
+                      columns: 7,
+                      bgColor: Colors.black,
+                      indicatorColor: Setting.themeColor,
+                      onEmojiSelected: (emoji, category) {
+                        messageController.text =
+                            messageController.text + emoji.emoji;
+                      },
+                    )
+                  : const SizedBox(),
+            ],
           ),
         ),
         onWillPop: () {

@@ -78,6 +78,7 @@ class _AddMembersInGroupState extends State<AddMembersInGroup> {
           "email": userMap!['email'],
           "uid": userMap!['uid'],
           "isAdmin": false,
+          "avatar": userMap!['avatar'],
         });
 
         userMap = null;

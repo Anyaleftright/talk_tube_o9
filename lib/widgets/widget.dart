@@ -1,7 +1,7 @@
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:talk_tube_o9/authenticate/login_screen.dart';
 import 'package:talk_tube_o9/config/setting.dart';
 import 'package:flutter/material.dart';
+import 'package:talk_tube_o9/views/signin.dart';
 
 PreferredSize appBarMain(BuildContext context) {
   return PreferredSize(
@@ -26,7 +26,7 @@ PreferredSize appBarMain(BuildContext context) {
           // onPressed: () => logOut(context),
           onPressed: () async {
             await FirebaseAuth.instance.signOut();
-            Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => LoginScreen()));
+            Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => const SignIn()));
           },
           icon: const Icon(Icons.exit_to_app),
         ),

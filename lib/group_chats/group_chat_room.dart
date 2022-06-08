@@ -1,5 +1,8 @@
+import 'dart:developer';
 import 'dart:io';
 
+import 'package:emoji_picker/emoji_picker.dart';
+import 'package:firebase_storage/firebase_storage.dart';
 import 'package:image_cropper/image_cropper.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:talk_tube_o9/group_chats/group_info.dart';
@@ -10,11 +13,19 @@ import 'package:talk_tube_o9/config/setting.dart';
 import 'package:talk_tube_o9/widgets/widget.dart';
 import 'package:video_player/video_player.dart';
 
+import '../main.dart';
+import '../models/chat_room_model.dart';
+import '../models/message_model.dart';
+import '../models/user_model.dart';
+
 class GroupChatRoom extends StatefulWidget {
   final String groupChatId, groupName;
 
-  GroupChatRoom({required this.groupName, required this.groupChatId, Key? key})
-      : super(key: key);
+  GroupChatRoom({
+    required this.groupName,
+    required this.groupChatId,
+    Key? key,
+  }) : super(key: key);
 
   @override
   State<GroupChatRoom> createState() => _GroupChatRoomState();
@@ -44,25 +55,6 @@ class _GroupChatRoomState extends State<GroupChatRoom> {
     });
   }
 
-  void onSendMessage() async {
-    if (messageController.text.isNotEmpty) {
-      Map<String, dynamic> chatData = {
-        "sendBy": _auth.currentUser!.displayName,
-        "message": messageController.text,
-        "type": "text",
-        "time": FieldValue.serverTimestamp(),
-      };
-
-      messageController.clear();
-
-      await _firestore
-          .collection('groups')
-          .doc(widget.groupChatId)
-          .collection('chats')
-          .add(chatData);
-    }
-  }
-
   void selectImage(ImageSource source) async {
     XFile? pickedFile = await ImagePicker().pickImage(source: source);
     if (pickedFile != null) {
@@ -81,6 +73,41 @@ class _GroupChatRoomState extends State<GroupChatRoom> {
     }
   }
 
+  void uploadImage() async {
+    if (image != null) {
+      ///Lấy tên file
+      String? fileName = image?.path.split('/').last;
+
+      UploadTask uploadTask = FirebaseStorage.instance
+          .ref("imageMessage")
+          .child('/$fileName')
+          .putFile(image!);
+      TaskSnapshot snapshot = await uploadTask;
+      String? imageUrl = await snapshot.ref.getDownloadURL();
+
+      Map<String, dynamic> chatData = {
+        "messageId": uuid.v1(),
+        "sendBy": _auth.currentUser!.displayName,
+        "message": imageUrl,
+        "seen": false,
+        "type": "image",
+        "time": FieldValue.serverTimestamp(),
+      };
+
+      await _firestore
+          .collection('groups')
+          .doc(widget.groupChatId)
+          .collection('chats')
+          .add(chatData);
+
+      log('Image uploaded');
+      // image!.delete();
+      setState(() {
+        image = null;
+      });
+    }
+  }
+
   void selectVideo(ImageSource source) async {
     final pickedFile = await ImagePicker().pickVideo(source: source);
     video = File(pickedFile!.path);
@@ -92,6 +119,62 @@ class _GroupChatRoomState extends State<GroupChatRoom> {
         setState(() {});
         _videoPlayerController!.play();
       });
+  }
+
+  void uploadVideo() async {
+    if (video != null) {
+      ///Lấy tên file
+      String? fileName = video?.path.split('/').last;
+
+      UploadTask uploadTask = FirebaseStorage.instance
+          .ref("videoMessage")
+          .child('/$fileName')
+          .putFile(video!);
+      TaskSnapshot snapshot = await uploadTask;
+      String? videoUrl = await snapshot.ref.getDownloadURL();
+
+      // print(videoUrl);
+      // print(fileName);
+
+      Map<String, dynamic> chatData = {
+        "messageId": uuid.v1(),
+        "sendBy": _auth.currentUser!.displayName,
+        "message": videoUrl,
+        "seen": false,
+        "type": "video",
+        "time": FieldValue.serverTimestamp(),
+      };
+
+      await _firestore
+          .collection('groups')
+          .doc(widget.groupChatId)
+          .collection('chats')
+          .add(chatData);
+      log('video uploaded');
+      // image!.delete();
+      setState(() {
+        video = null;
+      });
+    }
+  }
+
+  void onSendMessage() async {
+    if (messageController.text.isNotEmpty) {
+      Map<String, dynamic> chatData = {
+        "sendBy": _auth.currentUser!.displayName,
+        "message": messageController.text,
+        "type": "text",
+        "time": FieldValue.serverTimestamp(),
+      };
+
+      messageController.clear();
+
+      await _firestore
+          .collection('groups')
+          .doc(widget.groupChatId)
+          .collection('chats')
+          .add(chatData);
+    }
   }
 
   @override
@@ -119,155 +202,133 @@ class _GroupChatRoomState extends State<GroupChatRoom> {
               icon: const Icon(Icons.info)),
         ],
       ),
-      body: SingleChildScrollView(
-        child: Column(
-          children: [
-            SizedBox(
-              height: size.height / 1.27,
-              width: size.width,
-              child: StreamBuilder<QuerySnapshot>(
-                stream: _firestore
-                    .collection('groups')
-                    .doc(widget.groupChatId)
-                    .collection('chats')
-                    .orderBy('time')
-                    .snapshots(),
-                builder: (context, snapshot) {
-                  if (snapshot.hasData) {
-                    return ListView.builder(
-                      itemCount: snapshot.data!.docs.length,
-                      itemBuilder: (context, index) {
-                        Map<String, dynamic> chatMap =
-                            snapshot.data!.docs[index].data()
-                                as Map<String, dynamic>;
+      body: WillPopScope(
+        child: SafeArea(
+          child: Container(
+            // padding: const EdgeInsets.symmetric(horizontal: 12),
+            child: Column(
+              children: [
+                Expanded(
+                  child: StreamBuilder<QuerySnapshot>(
+                    stream: _firestore
+                        .collection('groups')
+                        .doc(widget.groupChatId)
+                        .collection('chats')
+                        .orderBy('time')
+                        .snapshots(),
+                    builder: (context, snapshot) {
+                      if (snapshot.hasData) {
+                        return ListView.builder(
+                          itemCount: snapshot.data!.docs.length,
+                          itemBuilder: (context, index) {
+                            Map<String, dynamic> chatMap =
+                                snapshot.data!.docs[index].data()
+                                    as Map<String, dynamic>;
 
-                        return messageTile(size, chatMap);
-                      },
-                    );
-                  } else {
-                    return Container();
-                  }
-                },
-              ),
-            ),
-            Container(
-              height: queryData.size.height * 0.1,
-              padding: const EdgeInsets.symmetric(vertical: 8),
-              child: Row(
-                children: [
-                  Container(
-                    margin: const EdgeInsets.symmetric(horizontal: 4),
-                    child: IconButton(
-                      onPressed: () {
-                        selectImage(ImageSource.gallery);
-                      },
-                      icon: const Icon(Icons.photo,
-                          size: 32, color: Colors.grey),
-                    ),
+                            return messageTile(size, chatMap);
+                          },
+                        );
+                      } else {
+                        return Container();
+                      }
+                    },
                   ),
-                  Container(
-                    margin: const EdgeInsets.symmetric(horizontal: 4),
-                    child: IconButton(
-                      onPressed: () {
-                        selectVideo(ImageSource.gallery);
-                      },
-                      icon: const Icon(Icons.video_library,
-                          size: 32, color: Colors.grey),
-                    ),
-                  ),
-                  Flexible(
-                    child: TextField(
-                      focusNode: _keyboard,
-                      controller: messageController,
-                      style: simpleTextStyle(),
-                      maxLines: null,
-                      decoration: textFieldMessage(
-                            () {
-                          setState(() {
-                            /// when keyboard is opened, click emoji btn can dispose the keyboard
-                            isShowEmoji = !isShowEmoji;
-                            _keyboard.unfocus();
-                            _keyboard.canRequestFocus = false;
-                          });
-                        },
-                      ),
-                    ),
-                  ),
-                  Container(
-                    margin: const EdgeInsets.only(left: 8),
-                    child: IconButton(
-                      onPressed: () {
-                        /*sendMessage();
-                        uploadImage();
-                        uploadVideo();*/
-                      },
-                      icon: Icon(
-                        Icons.send,
-                        size: 30,
-                        color: messageController.text.isEmpty
-                            ? Colors.grey
-                            : Setting.themeColor,
-                      ),
-                    ),
-                  )
-                ],
-              ),
-            ),
-            /*Container(
-              height: size.height / 10,
-              width: size.width,
-              alignment: Alignment.center,
-              child: SizedBox(
-                height: size.height / 12,
-                width: size.width / 1.1,
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    SizedBox(
-                      height: size.height / 17,
-                      width: size.width / 1.3,
-                      child: TextField(
-                        controller: messageController,
-                        style: simpleTextStyle(),
-                        maxLines: null,
-                        decoration: InputDecoration(
-                          suffixIcon: IconButton(
-                            onPressed: () {},
-                            icon: const Icon(Icons.photo),
-                          ),
-                          hintText: 'Enter message',
-                          hintStyle: const TextStyle(
-                            color: Colors.white54,
-                          ),
-                          border: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(30),
-                            borderSide: BorderSide.none,
-                          ),
-                          contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 0),
-                          fillColor: Colors.grey.withOpacity(0.5),
+                ),
+                Container(
+                  height: queryData.size.height * 0.1,
+                  padding: const EdgeInsets.symmetric(vertical: 8),
+                  child: Row(
+                    children: [
+                      Container(
+                        margin: const EdgeInsets.symmetric(horizontal: 4),
+                        child: IconButton(
+                          onPressed: () {
+                            selectImage(ImageSource.gallery);
+                          },
+                          icon:
+                              const Icon(Icons.photo, size: 32, color: Colors.grey),
                         ),
                       ),
-                    ),
-                    IconButton(
-                      onPressed: onSendMessage,
-                      icon: const Icon(
-                        Icons.send,
-                        size: 30,
-                        color: Setting.themeColor,
+                      Container(
+                        margin: const EdgeInsets.symmetric(horizontal: 4),
+                        child: IconButton(
+                          onPressed: () {
+                            selectVideo(ImageSource.gallery);
+                          },
+                          icon: const Icon(Icons.video_library,
+                              size: 32, color: Colors.grey),
+                        ),
                       ),
-                    ),
-                  ],
+                      Flexible(
+                        child: TextField(
+                          focusNode: _keyboard,
+                          controller: messageController,
+                          style: simpleTextStyle(),
+                          maxLines: null,
+                          decoration: textFieldMessage(
+                            () {
+                              setState(() {
+                                /// when keyboard is opened, click emoji btn can dispose the keyboard
+                                isShowEmoji = !isShowEmoji;
+                                _keyboard.unfocus();
+                                _keyboard.canRequestFocus = false;
+                              });
+                            },
+                          ),
+                        ),
+                      ),
+                      Container(
+                        margin: const EdgeInsets.only(left: 8),
+                        child: IconButton(
+                          onPressed: () {
+                            onSendMessage();
+                            uploadImage();
+                            uploadVideo();
+                          },
+                          icon: Icon(
+                            Icons.send,
+                            size: 30,
+                            color: messageController.text.isEmpty
+                                ? Colors.grey
+                                : Setting.themeColor,
+                          ),
+                        ),
+                      )
+                    ],
+                  ),
                 ),
-              ),
-            ),*/
-          ],
+                isShowEmoji == true
+                    ? EmojiPicker(
+                        rows: 3,
+                        columns: 7,
+                        bgColor: Colors.black,
+                        indicatorColor: Setting.themeColor,
+                        onEmojiSelected: (emoji, category) {
+                          messageController.text =
+                              messageController.text + emoji.emoji;
+                        },
+                      )
+                    : const SizedBox(),
+              ],
+            ),
+          ),
         ),
+        onWillPop: () {
+          if (isShowEmoji == true) {
+            setState(() {
+              isShowEmoji = false;
+            });
+          } else {
+            Navigator.pop(context);
+          }
+          return Future.value(false);
+        },
       ),
     );
   }
 
   Widget messageTile(Size size, Map<String, dynamic> chatMap) {
-    print('VJP LOG: ' + chatMap['message']);
+    log('VJP LOG: ' + chatMap['message']);
     return Builder(builder: (_) {
       if (chatMap['type'] == "text") {
         return Container(
@@ -281,8 +342,8 @@ class _GroupChatRoomState extends State<GroupChatRoom> {
               decoration: BoxDecoration(
                 borderRadius: BorderRadius.circular(15),
                 color: chatMap['sendBy'] == _auth.currentUser!.displayName
-                ? Setting.themeColor
-                : Colors.grey.withOpacity(0.5),
+                    ? Setting.themeColor
+                    : Colors.grey.withOpacity(0.5),
               ),
               child: Column(
                 children: [

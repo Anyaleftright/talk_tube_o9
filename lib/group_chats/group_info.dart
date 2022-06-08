@@ -9,8 +9,11 @@ import 'package:flutter/material.dart';
 class GroupInfo extends StatefulWidget {
   final String groupId, groupName;
 
-  const GroupInfo({required this.groupId, required this.groupName, Key? key})
-      : super(key: key);
+  const GroupInfo({
+    required this.groupId,
+    required this.groupName,
+    Key? key,
+  }) : super(key: key);
 
   @override
   State<GroupInfo> createState() => _GroupInfoState();
@@ -75,6 +78,7 @@ class _GroupInfoState extends State<GroupInfo> {
         isLoading = false;
       });
     });
+    Navigator.pop(context);
   }
 
   void showDialogBox(int index) {
@@ -216,9 +220,14 @@ class _GroupInfoState extends State<GroupInfo> {
                         itemBuilder: (context, index) {
                           return ListTile(
                             onTap: () => showDialogBox(index),
-                            leading: const Icon(
-                              Icons.account_circle,
-                              color: Colors.white,
+                            leading: CircleAvatar(
+                              backgroundImage: membersList[index]['avatar']
+                                          .toString() ==
+                                      ''
+                                  ? const AssetImage(
+                                      'assets/images/default.png')
+                                  : NetworkImage(membersList[index]['avatar'])
+                                      as ImageProvider,
                             ),
                             title: Text(
                               membersList[index]['name'],

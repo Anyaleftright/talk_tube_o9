@@ -1,9 +1,13 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:talk_tube_o9/widgets/widget.dart';
+
+import '../config/setting.dart';
 
 class AddMembersINGroup extends StatefulWidget {
   final String groupChatId, name;
   final List membersList;
+
   const AddMembersINGroup(
       {required this.name,
       required this.membersList,
@@ -36,7 +40,7 @@ class _AddMembersINGroupState extends State<AddMembersINGroup> {
 
     await _firestore
         .collection('users')
-        .where("email", isEqualTo: _search.text)
+        .where("email", isGreaterThanOrEqualTo: _search.text)
         .get()
         .then((value) {
       setState(() {
@@ -48,7 +52,13 @@ class _AddMembersINGroupState extends State<AddMembersINGroup> {
   }
 
   void onAddMembers() async {
-    membersList.add(userMap);
+    membersList.add({
+      "name": userMap!['name'],
+      "email": userMap!['email'],
+      "uid": userMap!['uid'],
+      "isAdmin": false,
+      "avatar": userMap!['avatar'],
+    });
 
     await _firestore.collection('groups').doc(widget.groupChatId).update({
       "members": membersList,
@@ -60,6 +70,7 @@ class _AddMembersINGroupState extends State<AddMembersINGroup> {
         .collection('groups')
         .doc(widget.groupChatId)
         .set({"name": widget.name, "id": widget.groupChatId});
+    Navigator.pop(context);
   }
 
   @override
@@ -67,13 +78,29 @@ class _AddMembersINGroupState extends State<AddMembersINGroup> {
     final Size size = MediaQuery.of(context).size;
 
     return Scaffold(
-      appBar: AppBar(
-        title: Text("Add Members"),
-      ),
+      appBar: appBarMain(context),
       body: SingleChildScrollView(
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
+            /*Flexible(
+              child: ListView.builder(
+                itemCount: membersList.length,
+                shrinkWrap: true,
+                physics: const NeverScrollableScrollPhysics(),
+                itemBuilder: (context, index) {
+                  return ListTile(
+                    onTap: () {},
+                    leading: const Icon(Icons.account_circle),
+                    title: Text(membersList[index]['name']),
+                    subtitle: Text(membersList[index]['email']),
+                    trailing: const Icon(Icons.close),
+                    iconColor: Colors.white,
+                    textColor: Colors.white,
+                  );
+                },
+              ),
+            ),*/
             SizedBox(
               height: size.height / 20,
             ),
@@ -81,17 +108,13 @@ class _AddMembersINGroupState extends State<AddMembersINGroup> {
               height: size.height / 14,
               width: size.width,
               alignment: Alignment.center,
-              child: Container(
+              child: SizedBox(
                 height: size.height / 14,
                 width: size.width / 1.15,
                 child: TextField(
                   controller: _search,
-                  decoration: InputDecoration(
-                    hintText: "Search",
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(10),
-                    ),
-                  ),
+                  decoration: textFieldInputDecoration('Email address'),
+                  style: simpleTextStyle(),
                 ),
               ),
             ),
@@ -103,21 +126,34 @@ class _AddMembersINGroupState extends State<AddMembersINGroup> {
                     height: size.height / 12,
                     width: size.height / 12,
                     alignment: Alignment.center,
-                    child: CircularProgressIndicator(),
+                    child: const CircularProgressIndicator(),
                   )
-                : ElevatedButton(
-                    onPressed: onSearch,
-                    child: Text("Search"),
+                : Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 24),
+                    width: double.infinity,
+                    child: ElevatedButton(
+                      onPressed: onSearch,
+                      child: const Text('Search'),
+                      style: ElevatedButton.styleFrom(
+                        elevation: 0,
+                        primary: Setting.themeColor,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(18),
+                        ),
+                      ),
+                    ),
                   ),
             userMap != null
                 ? ListTile(
                     onTap: onAddMembers,
-                    leading: Icon(Icons.account_box),
+                    leading: const Icon(Icons.account_box),
                     title: Text(userMap!['name']),
                     subtitle: Text(userMap!['email']),
-                    trailing: Icon(Icons.add),
+                    trailing: const Icon(Icons.add),
+                    iconColor: Colors.white,
+                    textColor: Colors.white,
                   )
-                : SizedBox(),
+                : const SizedBox(),
           ],
         ),
       ),
