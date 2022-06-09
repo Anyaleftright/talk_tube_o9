@@ -18,6 +18,7 @@ import 'package:image_cropper/image_cropper.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:video_player/video_player.dart';
 
+import 'extend_image.dart';
 import 'extend_video.dart';
 
 class ChatRoomScreen extends StatefulWidget {
@@ -245,118 +246,196 @@ class _ChatRoomScreenState extends State<ChatRoomScreen> {
                       if (snapshot.hasData) {
                         QuerySnapshot dataSnapshot =
                             snapshot.data as QuerySnapshot;
-                        return ListView.builder(
-                          physics: const BouncingScrollPhysics(),
-                          reverse: true,
-                          itemCount: dataSnapshot.docs.length,
-                          itemBuilder: (context, index) {
-                            MessageModel current = MessageModel.fromMap(
-                                dataSnapshot.docs[index].data()
-                                    as Map<String, dynamic>);
-                            return Row(
-                              mainAxisAlignment:
-                                  current.sender == widget.userModel.uid
-                                      ? MainAxisAlignment.end
-                                      : MainAxisAlignment.start,
-                              children: [
-                                if (current.type.toString() == 'image')
-                                  Container(
-                                      constraints: BoxConstraints(
-                                        maxHeight: queryData.size.height * 0.5,
-                                        maxWidth: queryData.size.width * 0.7,
-                                      ),
-                                      margin: const EdgeInsets.symmetric(
-                                          vertical: 6),
-                                      child: GestureDetector(
-                                        onTap: () => Navigator.of(context).push(
-                                          MaterialPageRoute(
-                                            builder: (context) => ExtendImage(
-                                              imageUrl: current.text.toString(),
+                        return dataSnapshot == null
+                            ? const isLoading()
+                            : ListView.builder(
+                                physics: const BouncingScrollPhysics(),
+                                reverse: true,
+                                itemCount: dataSnapshot.docs.length,
+                                itemBuilder: (context, index) {
+                                  MessageModel current = MessageModel.fromMap(
+                                      dataSnapshot.docs[index].data()
+                                          as Map<String, dynamic>);
+                                  return Row(
+                                    mainAxisAlignment:
+                                        current.sender == widget.userModel.uid
+                                            ? MainAxisAlignment.end
+                                            : MainAxisAlignment.start,
+                                    children: [
+                                      if (current.type.toString() == 'image')
+                                        Container(
+                                            constraints: BoxConstraints(
+                                              maxHeight:
+                                                  queryData.size.height * 0.5,
+                                              maxWidth:
+                                                  queryData.size.width * 0.7,
                                             ),
+                                            margin: const EdgeInsets.symmetric(
+                                                vertical: 6),
+                                            child: current.text == null ||
+                                                    current.text == ''
+                                                ? const isLoading()
+                                                : GestureDetector(
+                                                    onTap: () =>
+                                                        Navigator.of(context)
+                                                            .push(
+                                                      MaterialPageRoute(
+                                                        builder: (context) =>
+                                                            ExtendImage(
+                                                          imageUrl: current.text
+                                                              .toString(),
+                                                        ),
+                                                      ),
+                                                    ),
+                                                    onLongPress: () =>
+                                                        showDialog(
+                                                            context: context,
+                                                            builder: (context) {
+                                                              return AlertDialog(
+                                                                content:
+                                                                    ListTile(
+                                                                  onTap: () {
+                                                                    FirebaseFirestore
+                                                                        .instance
+                                                                        .collection(
+                                                                            'chatRooms')
+                                                                        .doc(widget
+                                                                            .chatRoom
+                                                                            .roomId)
+                                                                        .collection(
+                                                                            'messages')
+                                                                        .doc(current
+                                                                            .messageId)
+                                                                        .delete();
+                                                                    Navigator.pop(
+                                                                        context);
+                                                                  },
+                                                                  title: const Text(
+                                                                      "Delete message"),
+                                                                ),
+                                                              );
+                                                            }),
+                                                    child: ClipRRect(
+                                                      borderRadius:
+                                                          BorderRadius.circular(
+                                                              24),
+                                                      child: current
+                                                              .text!.isNotEmpty
+                                                          ? Image.network(
+                                                              current.text
+                                                                  .toString())
+                                                          : const isLoading(),
+                                                    ),
+                                                  ))
+                                      else if (current.type.toString() ==
+                                          'video')
+                                        Container(
+                                          constraints: BoxConstraints(
+                                            maxHeight:
+                                                queryData.size.height * 0.5,
+                                            maxWidth:
+                                                queryData.size.width * 0.7,
                                           ),
+                                          margin: const EdgeInsets.symmetric(
+                                              vertical: 6),
+                                          child: current.text == null ||
+                                                  current.text == ''
+                                              ? const isLoading()
+                                              : GestureDetector(
+                                                  onLongPress: () => showDialog(
+                                                      context: context,
+                                                      builder: (context) {
+                                                        return AlertDialog(
+                                                          content: ListTile(
+                                                            onTap: () {
+                                                              FirebaseFirestore
+                                                                  .instance
+                                                                  .collection(
+                                                                      'chatRooms')
+                                                                  .doc(widget
+                                                                      .chatRoom
+                                                                      .roomId)
+                                                                  .collection(
+                                                                      'messages')
+                                                                  .doc(current
+                                                                      .messageId)
+                                                                  .delete();
+                                                              Navigator.pop(
+                                                                  context);
+                                                            },
+                                                            title: const Text(
+                                                                "Delete message"),
+                                                          ),
+                                                        );
+                                                      }),
+                                                  onTap: () => Navigator.of(
+                                                          context)
+                                                      .push(MaterialPageRoute(
+                                                          builder: (context) =>
+                                                              ExtendVideo(
+                                                                  videoUrl: current
+                                                                      .text
+                                                                      .toString()))),
+                                                  child: Image.network(
+                                                      'https://d33v4339jhl8k0.cloudfront.net/docs/assets/591c8a010428634b4a33375c/images/5ab4866b2c7d3a56d8873f4c/file-MrylO8jADD.png'),
+                                                ),
+                                        )
+                                      else
+                                        Container(
+                                          constraints: BoxConstraints(
+                                              maxWidth:
+                                                  queryData.size.width * 0.75),
+                                          margin: const EdgeInsets.symmetric(
+                                              vertical: 6),
+                                          padding: const EdgeInsets.symmetric(
+                                              vertical: 10, horizontal: 15),
+                                          decoration: BoxDecoration(
+                                            borderRadius:
+                                                BorderRadius.circular(30),
+                                            color: current.sender ==
+                                                    widget.userModel.uid
+                                                ? Setting.themeColor
+                                                : Colors.grey.withOpacity(0.5),
+                                          ),
+                                          child: current.text == null ||
+                                                  current.text == ''
+                                              ? const isLoading()
+                                              : GestureDetector(
+                                                  onLongPress: () => showDialog(
+                                                      context: context,
+                                                      builder: (context) {
+                                                        return AlertDialog(
+                                                          content: ListTile(
+                                                            onTap: () {
+                                                              FirebaseFirestore
+                                                                  .instance
+                                                                  .collection(
+                                                                      'chatRooms')
+                                                                  .doc(widget
+                                                                      .chatRoom
+                                                                      .roomId)
+                                                                  .collection(
+                                                                      'messages')
+                                                                  .doc(current
+                                                                      .messageId)
+                                                                  .delete();
+                                                              Navigator.pop(
+                                                                  context);
+                                                            },
+                                                            title: const Text(
+                                                                "Delete message"),
+                                                          ),
+                                                        );
+                                                      }),
+                                                  child: Text(
+                                                      current.text.toString(),
+                                                      style: simpleTextStyle()),
+                                                ),
                                         ),
-                                        onLongPress: () {
-                                          // print('on long press');
-                                          showModalBottomSheet(
-                                              context: context,
-                                              builder: (_) {
-                                                return Container(
-                                                  padding: const EdgeInsets
-                                                          .symmetric(
-                                                      horizontal: 40,
-                                                      vertical: 30),
-                                                  child: Row(
-                                                    mainAxisAlignment:
-                                                        MainAxisAlignment
-                                                            .spaceBetween,
-                                                    crossAxisAlignment:
-                                                        CrossAxisAlignment
-                                                            .center,
-                                                    children: [
-                                                      DetailsMessage(
-                                                          icon: const Icon(
-                                                              Icons.save),
-                                                          title: 'Save',
-                                                          onPress: () {}),
-                                                      DetailsMessage(
-                                                          icon: const Icon(
-                                                              Icons.info),
-                                                          title: 'Info',
-                                                          onPress: () {}),
-                                                      DetailsMessage(
-                                                          icon: const Icon(
-                                                              Icons.delete),
-                                                          title: 'Delete',
-                                                          onPress: () {}),
-                                                    ],
-                                                  ),
-                                                );
-                                              });
-                                        },
-                                        child: ClipRRect(
-                                          borderRadius:
-                                              BorderRadius.circular(24),
-                                          child: current.text!.isNotEmpty
-                                              ? Image.network(
-                                                  current.text.toString())
-                                              : const isLoading(),
-                                        ),
-                                      ))
-                                else if (current.type.toString() == 'video')
-                                  Container(
-                                    constraints: BoxConstraints(
-                                      maxHeight: queryData.size.height * 0.5,
-                                      maxWidth: queryData.size.width * 0.7,
-                                    ),
-                                    margin: const EdgeInsets.symmetric(
-                                        vertical: 6),
-                                    child: GestureDetector(
-                                      onTap: () => Navigator.of(context).push(MaterialPageRoute(builder: (context) => ExtendVideo(videoUrl: current.text.toString()))),
-                                      child: Image.network('https://d33v4339jhl8k0.cloudfront.net/docs/assets/591c8a010428634b4a33375c/images/5ab4866b2c7d3a56d8873f4c/file-MrylO8jADD.png'),
-                                    ),
-                                  )
-                                else
-                                  Container(
-                                    constraints: BoxConstraints(
-                                        maxWidth: queryData.size.width * 0.75),
-                                    margin:
-                                        const EdgeInsets.symmetric(vertical: 6),
-                                    padding: const EdgeInsets.symmetric(
-                                        vertical: 10, horizontal: 15),
-                                    decoration: BoxDecoration(
-                                      borderRadius: BorderRadius.circular(30),
-                                      color:
-                                          current.sender == widget.userModel.uid
-                                              ? Setting.themeColor
-                                              : Colors.grey.withOpacity(0.5),
-                                    ),
-                                    child: Text(current.text.toString(),
-                                        style: simpleTextStyle()),
-                                  ),
-                              ],
-                            );
-                          },
-                        );
+                                    ],
+                                  );
+                                },
+                              );
                       } else if (snapshot.hasError) {
                         return const Center(child: Text('Lost connection.'));
                       } else {
@@ -521,28 +600,6 @@ class _ChatRoomScreenState extends State<ChatRoomScreen> {
           }
           return Future.value(false);
         },
-      ),
-    );
-  }
-}
-
-class ExtendImage extends StatelessWidget {
-  final String imageUrl;
-
-  const ExtendImage({Key? key, required this.imageUrl}) : super(key: key);
-
-  @override
-  Widget build(BuildContext context) {
-    final Size size = MediaQuery.of(context).size;
-
-    return Scaffold(
-      body: Container(
-        height: size.height,
-        width: size.width,
-        color: Colors.black,
-        child: InteractiveViewer(
-          child: Image.network(imageUrl),
-        ),
       ),
     );
   }

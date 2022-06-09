@@ -3,7 +3,6 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:talk_tube_o9/models/firebase_helper.dart';
 import 'package:talk_tube_o9/models/user_model.dart';
-import 'package:talk_tube_o9/views/dashboard.dart';
 import 'package:talk_tube_o9/views/home_screen.dart';
 import 'package:talk_tube_o9/views/signin.dart';
 import 'package:uuid/uuid.dart';

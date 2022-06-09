@@ -121,10 +121,11 @@ class _GroupInfoState extends State<GroupInfo> {
           .doc(widget.groupId)
           .delete();
 
-      Navigator.of(context).pushAndRemoveUntil(
+      Navigator.pop(context);
+      /*Navigator.of(context).pushAndRemoveUntil(
         MaterialPageRoute(builder: (_) => HomeScreen()),
         (route) => false,
-      );
+      );*/
     }
   }
 

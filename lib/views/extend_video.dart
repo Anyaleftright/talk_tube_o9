@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:talk_tube_o9/config/setting.dart';
 import 'package:talk_tube_o9/widgets/widget.dart';
 import 'package:video_player/video_player.dart';
 
@@ -34,7 +35,7 @@ class _ExtendVideoState extends State<ExtendVideo> {
             aspectRatio: _controller.value.aspectRatio,
             child: VideoPlayer(_controller),
           )
-              : Container(),
+              : const isLoading(),
         ),
         floatingActionButton: FloatingActionButton(
           onPressed: () {

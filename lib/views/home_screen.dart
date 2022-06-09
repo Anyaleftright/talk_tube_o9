@@ -137,10 +137,10 @@ class _HomeScreenState extends State<HomeScreen> {
                                 ),
                               );
                             } else {
-                              return Container();
+                              return const isLoading();
                             }
                           } else {
-                            return Container();
+                            return const isLoading();
                           }
                         },
                       );
