@@ -3,9 +3,9 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:uuid/uuid.dart';
 
-import '../../config/setting.dart';
-import '../../views/home_screen.dart';
-import '../../widgets/widget.dart';
+import '../../../config/setting.dart';
+import '../../../views/home_screen.dart';
+import '../../../widgets/widget.dart';
 
 class CreateGroup extends StatefulWidget {
   final List<Map<String, dynamic>> membersList;

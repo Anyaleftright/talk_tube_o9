@@ -4,14 +4,12 @@ import 'package:flutter_speed_dial/flutter_speed_dial.dart';
 import 'package:talk_tube_o9/config/setting.dart';
 import 'package:talk_tube_o9/models/chat_room_model.dart';
 import 'package:talk_tube_o9/models/firebase_helper.dart';
-import 'package:talk_tube_o9/widgets/ui_helper.dart';
 import 'package:talk_tube_o9/models/user_model.dart';
 import 'package:talk_tube_o9/views/search_screen.dart';
 import 'package:talk_tube_o9/widgets/widget.dart';
 import 'package:flutter/material.dart';
-
-import '../group_chats/group_chat_screen.dart';
 import 'chat_room_screen.dart';
+import 'group_chats/group_chat_screen.dart';
 
 class HomeScreen extends StatefulWidget {
   final UserModel? userModel;

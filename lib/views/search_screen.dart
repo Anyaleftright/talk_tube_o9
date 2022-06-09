@@ -10,8 +10,6 @@ import 'package:talk_tube_o9/views/chat_room_screen.dart';
 import 'package:talk_tube_o9/widgets/widget.dart';
 import 'package:flutter/material.dart';
 
-import '../screens/chat_room.dart';
-
 class SearchScreen extends StatefulWidget {
   final UserModel userModel;
   final User firebaseUser;

@@ -6,7 +6,7 @@ import 'package:emoji_picker_2/emoji_picker_2.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:image_cropper/image_cropper.dart';
 import 'package:image_picker/image_picker.dart';
-import 'package:talk_tube_o9/group_chats/group_info.dart';
+import 'group_info.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
@@ -14,8 +14,8 @@ import 'package:talk_tube_o9/config/setting.dart';
 import 'package:talk_tube_o9/widgets/widget.dart';
 import 'package:video_player/video_player.dart';
 
-import '../main.dart';
-import '../views/extend_video.dart';
+import '../../main.dart';
+import '../../views/extend_video.dart';
 
 class GroupChatRoom extends StatefulWidget {
   final String groupChatId, groupName;
