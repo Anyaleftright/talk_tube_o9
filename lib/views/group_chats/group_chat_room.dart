@@ -6,6 +6,7 @@ import 'package:emoji_picker_2/emoji_picker_2.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:image_cropper/image_cropper.dart';
 import 'package:image_picker/image_picker.dart';
+import '../extend_image.dart';
 import 'group_info.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -97,7 +98,8 @@ class _GroupChatRoomState extends State<GroupChatRoom> {
           .collection('groups')
           .doc(widget.groupChatId)
           .collection('chats')
-          .add(chatData);
+          .doc(chatData['messageId'])
+          .set(chatData);
 
       log('Image uploaded');
       // image!.delete();
@@ -148,7 +150,8 @@ class _GroupChatRoomState extends State<GroupChatRoom> {
           .collection('groups')
           .doc(widget.groupChatId)
           .collection('chats')
-          .add(chatData);
+          .doc(chatData['messageId'])
+          .set(chatData);
       log('video uploaded');
       // image!.delete();
       setState(() {
@@ -160,19 +163,22 @@ class _GroupChatRoomState extends State<GroupChatRoom> {
   void onSendMessage() async {
     if (messageController.text.isNotEmpty) {
       Map<String, dynamic> chatData = {
+        "messageId": uuid.v1(),
         "sendBy": _auth.currentUser!.displayName,
         "message": messageController.text,
         "type": "text",
+        "seen": false,
         "time": FieldValue.serverTimestamp(),
       };
-
-      messageController.clear();
 
       await _firestore
           .collection('groups')
           .doc(widget.groupChatId)
           .collection('chats')
-          .add(chatData);
+          .doc(chatData['messageId'])
+          .set(chatData);
+
+      messageController.clear();
     }
   }
 
@@ -211,11 +217,12 @@ class _GroupChatRoomState extends State<GroupChatRoom> {
                       .collection('groups')
                       .doc(widget.groupChatId)
                       .collection('chats')
-                      .orderBy('time')
+                      .orderBy('time', descending: true)
                       .snapshots(),
                   builder: (context, snapshot) {
                     if (snapshot.hasData) {
                       return ListView.builder(
+                        reverse: true,
                         itemCount: snapshot.data!.docs.length,
                         itemBuilder: (context, index) {
                           Map<String, dynamic> chatMap =
@@ -230,6 +237,71 @@ class _GroupChatRoomState extends State<GroupChatRoom> {
                     }
                   },
                 ),
+              ),
+              Container(
+                child: image == null
+                    ? null
+                    : Row(
+                        mainAxisAlignment: MainAxisAlignment.start,
+                        children: [
+                          Stack(
+                            children: [
+                              GestureDetector(
+                                onTap: () {
+                                  selectImage(ImageSource.gallery);
+                                },
+                                child: Container(
+                                  padding: const EdgeInsets.only(
+                                      bottom: 12, left: 12),
+                                  child: ClipRRect(
+                                    borderRadius: BorderRadius.circular(24),
+                                    child: Image.file(
+                                      image!,
+                                      width: 150,
+                                      height: 150,
+                                      fit: BoxFit.cover,
+                                    ),
+                                  ),
+                                ),
+                              ),
+                              Positioned(
+                                right: 0,
+                                top: 0,
+                                child: IconButton(
+                                  onPressed: () {
+                                    setState(() {
+                                      image = null;
+                                    });
+                                  },
+                                  icon: Container(
+                                    decoration: BoxDecoration(
+                                      color: Colors.grey,
+                                      borderRadius: BorderRadius.circular(90),
+                                    ),
+                                    child: const Icon(
+                                      Icons.close_rounded,
+                                      size: 24,
+                                      color: Colors.black,
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ],
+                      ),
+              ),
+              Column(
+                children: [
+                  if (video != null)
+                    _videoPlayerController!.value.isInitialized
+                        ? SizedBox(
+                            width: 300,
+                            height: 300,
+                            child: VideoPlayer(_videoPlayerController!),
+                          )
+                        : Container(),
+                ],
               ),
               Container(
                 height: queryData.size.height * 0.1,
@@ -324,59 +396,119 @@ class _GroupChatRoomState extends State<GroupChatRoom> {
   }
 
   Widget messageTile(Size size, Map<String, dynamic> chatMap) {
-    log('VJP LOG: ' + chatMap['message']);
     return Builder(builder: (_) {
       if (chatMap['type'] == "text") {
-        return Container(
-          width: size.width,
-          alignment: chatMap['sendBy'] == _auth.currentUser!.displayName
-              ? Alignment.centerRight
-              : Alignment.centerLeft,
+        return GestureDetector(
+          onLongPress: () => showDialog(
+              context: context,
+              builder: (context) {
+                return AlertDialog(
+                  content: ListTile(
+                    onTap: () {
+                      FirebaseFirestore.instance
+                          .collection('groups')
+                          .doc(widget.groupChatId)
+                          .collection('chats')
+                          .doc(chatMap['messageId'])
+                          .delete()
+                          .then((value) {
+                      });
+                      Navigator.pop(context);
+                    },
+                    title: const Text("Delete message"),
+                  ),
+                );
+              }),
           child: Container(
-              padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 14),
-              margin: const EdgeInsets.symmetric(vertical: 5, horizontal: 8),
-              decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(15),
-                color: chatMap['sendBy'] == _auth.currentUser!.displayName
-                    ? Setting.themeColor
-                    : Colors.grey.withOpacity(0.5),
-              ),
-              child: Column(
-                children: [
-                  Text(
-                    chatMap['sendBy'],
-                    style: const TextStyle(
-                      fontSize: 12,
-                      fontWeight: FontWeight.w500,
-                      color: Colors.white,
+            width: size.width,
+            alignment: chatMap['sendBy'] == _auth.currentUser!.displayName
+                ? Alignment.centerRight
+                : Alignment.centerLeft,
+            child: Container(
+                padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 14),
+                margin: const EdgeInsets.symmetric(vertical: 5, horizontal: 8),
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(15),
+                  color: chatMap['sendBy'] == _auth.currentUser!.displayName
+                      ? Setting.themeColor
+                      : Colors.grey.withOpacity(0.5),
+                ),
+                child: Column(
+                  children: [
+                    Text(
+                      chatMap['sendBy'],
+                      style: const TextStyle(
+                        fontSize: 12,
+                        fontWeight: FontWeight.w500,
+                        color: Colors.white,
+                      ),
                     ),
-                  ),
-                  SizedBox(
-                    height: size.height / 200,
-                  ),
-                  Text(
-                    chatMap['message'],
-                    style: const TextStyle(
-                      fontSize: 16,
-                      fontWeight: FontWeight.w500,
-                      color: Colors.white,
+                    SizedBox(
+                      height: size.height / 200,
                     ),
-                  ),
-                ],
-              )),
+                    Text(
+                      chatMap['message'],
+                      style: const TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.w500,
+                        color: Colors.white,
+                      ),
+                    ),
+                  ],
+                )),
+          ),
         );
       } else if (chatMap['type'] == "image") {
-        return Container(
-          width: size.width,
-          alignment: chatMap['sendBy'] == _auth.currentUser!.displayName
-              ? Alignment.centerRight
-              : Alignment.centerLeft,
+        return GestureDetector(
+          onTap: () =>
+              Navigator.of(context)
+                  .push(
+                MaterialPageRoute(
+                  builder: (context) =>
+                      ExtendImage(
+                        imageUrl: chatMap['message'].toString(),
+                      ),
+                ),
+              ),
+          onLongPress: () => showDialog(
+              context: context,
+              builder: (context) {
+                return AlertDialog(
+                  content: ListTile(
+                    onTap: () {
+                      FirebaseFirestore.instance
+                          .collection('groups')
+                          .doc(widget.groupChatId)
+                          .collection('chats')
+                          .doc(chatMap['messageId'])
+                          .delete()
+                          .then((value) {
+                      });
+                      Navigator.pop(context);
+                    },
+                    title: const Text("Delete message"),
+                  ),
+                );
+              }),
           child: Container(
-            padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 14),
-            margin: const EdgeInsets.symmetric(vertical: 5, horizontal: 8),
-            height: size.height / 2,
-            child: Image.network(
-              chatMap['message'],
+            width: size.width,
+            alignment: chatMap['sendBy'] == _auth.currentUser!.displayName
+                ? Alignment.centerRight
+                : Alignment.centerLeft,
+            child: Container(
+              constraints: BoxConstraints(
+                maxHeight: size.height * 0.5,
+                maxWidth: size.width * 0.7,
+              ),
+              margin: const EdgeInsets.symmetric(vertical: 6),
+              child: ClipRRect(
+                borderRadius: BorderRadius.circular(24),
+                child: chatMap['message'] == null
+                    ? const isLoading()
+                    : Image.network(
+                        chatMap['message'],
+                      ),
+              ),
             ),
           ),
         );
@@ -396,6 +528,26 @@ class _GroupChatRoomState extends State<GroupChatRoom> {
               onTap: () => Navigator.of(context).push(MaterialPageRoute(
                   builder: (context) =>
                       ExtendVideo(videoUrl: chatMap['message'].toString()))),
+              onLongPress: () => showDialog(
+                  context: context,
+                  builder: (context) {
+                    return AlertDialog(
+                      content: ListTile(
+                        onTap: () {
+                          FirebaseFirestore.instance
+                              .collection('groups')
+                              .doc(widget.groupChatId)
+                              .collection('chats')
+                              .doc(chatMap['messageId'])
+                              .delete()
+                              .then((value) {
+                          });
+                          Navigator.pop(context);
+                        },
+                        title: const Text("Delete message"),
+                      ),
+                    );
+                  }),
               child: Image.network(
                   'https://d33v4339jhl8k0.cloudfront.net/docs/assets/591c8a010428634b4a33375c/images/5ab4866b2c7d3a56d8873f4c/file-MrylO8jADD.png'),
             ),

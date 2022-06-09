@@ -23,7 +23,7 @@ class _AddMembersINGroupState extends State<AddMembersINGroup> {
   final TextEditingController _search = TextEditingController();
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
   Map<String, dynamic>? userMap;
-  bool isLoading = false;
+  bool _isLoading = false;
   List membersList = [];
 
   @override
@@ -35,7 +35,7 @@ class _AddMembersINGroupState extends State<AddMembersINGroup> {
 
   void onSearch() async {
     setState(() {
-      isLoading = true;
+      _isLoading = true;
     });
 
     await _firestore
@@ -45,7 +45,7 @@ class _AddMembersINGroupState extends State<AddMembersINGroup> {
         .then((value) {
       setState(() {
         userMap = value.docs[0].data();
-        isLoading = false;
+        _isLoading = false;
       });
       print(userMap);
     });
@@ -121,12 +121,12 @@ class _AddMembersINGroupState extends State<AddMembersINGroup> {
             SizedBox(
               height: size.height / 50,
             ),
-            isLoading
+            _isLoading
                 ? Container(
                     height: size.height / 12,
                     width: size.height / 12,
                     alignment: Alignment.center,
-                    child: const CircularProgressIndicator(),
+                    child: const isLoading(),
                   )
                 : Container(
                     padding: const EdgeInsets.symmetric(horizontal: 24),

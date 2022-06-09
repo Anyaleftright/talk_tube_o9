@@ -419,6 +419,8 @@ class _ChatRoomScreenState extends State<ChatRoomScreen> {
                                                                   .doc(current
                                                                       .messageId)
                                                                   .delete();
+                                                              print('LOG MESSAGE ID: ' + current.messageId.toString());
+
                                                               Navigator.pop(
                                                                   context);
                                                             },
